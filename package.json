@@ -1,0 +1,31 @@
+{
+  "name": "@sabaki/sgf",
+  "version": "1.0.0",
+  "description": "A library for parsing and editing SGF files.",
+  "main": "./src/main.js",
+  "scripts": {
+    "test": "tap tests/*.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SabakiHQ/sgf.git"
+  },
+  "keywords": [
+    "sgf",
+    "go",
+    "baduk",
+    "weiqi",
+    "boardgame",
+    "parser",
+    "file"
+  ],
+  "author": "Yichuan Shen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SabakiHQ/sgf/issues"
+  },
+  "homepage": "https://github.com/SabakiHQ/sgf",
+  "devDependencies": {
+    "tap": "^11.1.4"
+  }
+}
