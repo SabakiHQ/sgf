@@ -35,7 +35,7 @@ exports.tokenize = function(contents) {
 
             let value = matches[0]
             length = value.length
-            token = [type, value]
+            token = {type, value}
 
             break
         }
@@ -47,13 +47,13 @@ exports.tokenize = function(contents) {
     return tokens
 }
 
-function _parseTokens(tokens, onProgress = () => {}, encoding = defaultEncoding, start = [0], id = 0) {
+function _parseTokens(tokens, onProgress, encoding, start = [0], id = 0) {
     let i = start[0]
     let node, property, identifier
     let tree = {id, nodes: [], subtrees: [], parent: null}
 
     while (i < tokens.length) {
-        let [type, value] = tokens[i]
+        let {type, value} = tokens[i]
 
         if (type === 'parenthesis' && value === '(') break
         if (type === 'parenthesis' && value === ')') return tree
@@ -71,7 +71,7 @@ function _parseTokens(tokens, onProgress = () => {}, encoding = defaultEncoding,
         } else if (type === 'c_value_type') {
             value = exports.unescapeString(value.substr(1, value.length - 2))
 
-            if (encoding !== null) {
+            if (encoding != null) {
                 if (identifier === 'CA' && value !== defaultEncoding && iconv.encodingExists(value)) {
                     encoding = value
 
@@ -96,7 +96,7 @@ function _parseTokens(tokens, onProgress = () => {}, encoding = defaultEncoding,
     }
 
     while (i < tokens.length) {
-        let [type, value] = tokens[i]
+        let {type, value} = tokens[i]
 
         if (type === 'parenthesis' && value === '(') {
             start[0] = i + 1
@@ -122,7 +122,7 @@ function _parseTokens(tokens, onProgress = () => {}, encoding = defaultEncoding,
     return tree
 }
 
-exports.parseTokens = function(tokens, {onProgress, encoding = defaultEncoding} = {}) {
+exports.parseTokens = function(tokens, {onProgress = () => {}, encoding = null} = {}) {
     let tree = _parseTokens(tokens, onProgress, encoding)
     tree.subtrees.forEach(subtree => subtree.parent = null)
     return tree.subtrees
@@ -134,16 +134,18 @@ exports.parse = function(contents, {onProgress, ignoreEncoding = false} = {}) {
 
     if (!ignoreEncoding) {
         let foundEncoding = false
+        let sampleText = ''
 
         for (let t of tokens) {
-            if (t[0] === 'prop_ident' && t[1] === 'CA') {
+            if (t.type === 'prop_ident' && t.value === 'CA') {
                 foundEncoding = true
-                break
+            } else if (t.type === 'c_value_type') {
+                sampleText += t.value
             }
         }
 
         if (!foundEncoding) {
-            let detected = jschardet.detect(contents)
+            let detected = jschardet.detect(sampleText)
 
             if (detected.confidence > 0.2) {
                 encoding = detected.encoding
