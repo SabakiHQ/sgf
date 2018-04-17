@@ -1,6 +1,6 @@
 const fs = require('fs')
-const gametree = require('../gametree')
-const helper = require('../helper')
+const iconv = require('iconv-lite')
+const jschardet = require('jschardet')
 
 const alpha = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
@@ -13,13 +13,8 @@ const encodedProperties = ['C', 'N', 'AN', 'BR', 'BT', 'CP', 'DT', 'EV', 'GN',
                            'ON', 'OT', 'PB', 'PC', 'PW', 'RE', 'RO', 'RU', 'SO',
                            'US', 'WR', 'WT', 'GC']
 
-exports.meta = {
-    name: 'Smart Game Format',
-    extensions: ['sgf']
-}
-
 exports.tokenize = function(contents) {
-    contents = helper.normalizeEndings(contents)
+    contents = contents.replace(/\r/g, '')
 
     let tokens = []
     let rules = {
@@ -52,10 +47,10 @@ exports.tokenize = function(contents) {
     return tokens
 }
 
-function _parseTokens(tokens, onProgress = helper.noop, encoding = defaultEncoding, start = [0], depth = 0) {
-    let iconv = require('iconv-lite')
+function _parseTokens(tokens, onProgress = () => {}, encoding = defaultEncoding, start = [0], id = 0) {
     let i = start[0]
-    let tree = gametree.new(), node, property, id
+    let node, property, identifier
+    let tree = {id, nodes: [], subtrees: [], parent: null}
 
     while (i < tokens.length) {
         let [type, value] = tokens[i]
@@ -67,17 +62,17 @@ function _parseTokens(tokens, onProgress = helper.noop, encoding = defaultEncodi
             node = {}
             tree.nodes.push(node)
         } else if (type === 'prop_ident') {
-            id = value.split('').filter(x => x.toUpperCase() === x).join('')
+            identifier = value.split('').filter(x => x.toUpperCase() === x).join('')
 
-            if (id !== '') {
-                if (!(id in node)) node[id] = []
-                property = node[id]
+            if (identifier !== '') {
+                if (!(identifier in node)) node[identifier] = []
+                property = node[identifier]
             }
         } else if (type === 'c_value_type') {
             value = exports.unescapeString(value.substr(1, value.length - 2))
 
             if (encoding !== null) {
-                if (id === 'CA' && value !== defaultEncoding && iconv.encodingExists(value)) {
+                if (identifier === 'CA' && value !== defaultEncoding && iconv.encodingExists(value)) {
                     encoding = value
 
                     // We may have already incorrectly parsed some values in this root node
@@ -88,7 +83,7 @@ function _parseTokens(tokens, onProgress = helper.noop, encoding = defaultEncodi
                             node[k] = node[k].map(x => iconv.decode(Buffer.from(x, 'binary'), encoding))
                         }
                     }
-                } else if (encodedProperties.includes(id) && encoding !== defaultEncoding) {
+                } else if (encodedProperties.includes(identifier) && encoding !== defaultEncoding) {
                     let decodedValue = iconv.decode(Buffer.from(value, 'binary'), encoding)
                     value = decodedValue
                 }
@@ -106,7 +101,7 @@ function _parseTokens(tokens, onProgress = helper.noop, encoding = defaultEncodi
         if (type === 'parenthesis' && value === '(') {
             start[0] = i + 1
 
-            let t = _parseTokens(tokens, onProgress, encoding, start, depth + Math.min(tree.subtrees.length, 1))
+            let t = _parseTokens(tokens, onProgress, encoding, start, id + 1)
 
             if (t.nodes.length > 0) {
                 t.parent = tree
@@ -127,29 +122,27 @@ function _parseTokens(tokens, onProgress = helper.noop, encoding = defaultEncodi
     return tree
 }
 
-exports.parseTokens = function(tokens, onProgress, encoding = defaultEncoding) {
+exports.parseTokens = function(tokens, {onProgress, encoding = defaultEncoding} = {}) {
     let tree = _parseTokens(tokens, onProgress, encoding)
     tree.subtrees.forEach(subtree => subtree.parent = null)
     return tree.subtrees
 }
 
-exports.parse = function(contents, onProgress, ignoreEncoding = false) {
+exports.parse = function(contents, {onProgress, ignoreEncoding = false} = {}) {
     let tokens = exports.tokenize(contents)
-
     let encoding = ignoreEncoding ? null : defaultEncoding
 
     if (!ignoreEncoding) {
         let foundEncoding = false
 
         for (let t of tokens) {
-            if (helper.vertexEquals(t, ['prop_ident', 'CA'])) {
+            if (t[0] === 'prop_ident' && t[1] === 'CA') {
                 foundEncoding = true
                 break
             }
         }
 
         if (!foundEncoding) {
-            let jschardet = require('jschardet')
             let detected = jschardet.detect(contents)
 
             if (detected.confidence > 0.2) {
@@ -158,12 +151,12 @@ exports.parse = function(contents, onProgress, ignoreEncoding = false) {
         }
     }
 
-    return exports.parseTokens(tokens, onProgress, encoding)
+    return exports.parseTokens(tokens, {onProgress, encoding})
 }
 
-exports.parseFile = function(filename, onProgress, ignoreEncoding = false) {
+exports.parseFile = function(filename, {onProgress, ignoreEncoding} = {}) {
     let contents = fs.readFileSync(filename, {encoding: 'binary'})
-    return exports.parse(contents, onProgress, ignoreEncoding)
+    return exports.parse(contents, {onProgress, ignoreEncoding})
 }
 
 exports.string2dates = function(input) {
@@ -228,25 +221,25 @@ exports.vertex2point = function([x, y]) {
     return alpha[x] + alpha[y]
 }
 
-exports.compressed2list = function(compressed) {
+exports.compressed2vertices = function(compressed) {
     let colon = compressed.indexOf(':')
     if (colon < 0) return [exports.point2vertex(compressed)]
 
     let v1 = exports.point2vertex(compressed.slice(0, colon))
     let v2 = exports.point2vertex(compressed.slice(colon + 1))
-    let list = []
+    let vertices = []
 
     for (let i = Math.min(v1[0], v2[0]); i <= Math.max(v1[0], v2[0]); i++) {
         for (let j = Math.min(v1[1], v2[1]); j <= Math.max(v1[1], v2[1]); j++) {
-            list.push([i, j])
+            vertices.push([i, j])
         }
     }
 
-    return list
+    return vertices
 }
 
-exports.stringify = function(tree) {
-    if (Object.prototype.toString.call(tree) === '[object Array]') {
+exports.stringify = function(tree, {linebreak = '\n'} = {}) {
+    if (Array.isArray(tree)) {
         return exports.stringify({nodes: [], subtrees: tree})
     }
 
@@ -261,7 +254,7 @@ exports.stringify = function(tree) {
             output += id + '[' + node[id].map(exports.escapeString).join('][') + ']'
         }
 
-        output += helper.linebreak
+        output += linebreak
     }
 
     for (let subtree of tree.subtrees) {
@@ -276,14 +269,13 @@ exports.escapeString = function(input) {
         .replace(/\\/g, '\\\\')
         .replace(/\]/g, '\\]')
         .replace(/\n\n+/g, '\n\n')
-        .replace(/\n/g, helper.linebreak)
 }
 
 exports.unescapeString = function(input) {
     let result = []
     let inBackslash = false
 
-    input = helper.normalizeEndings(input)
+    input = input.replace(/\r/g, '')
 
     for (let i = 0; i < input.length; i++) {
         if (!inBackslash) {
