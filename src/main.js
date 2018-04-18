@@ -9,11 +9,10 @@ const helper = require('./helper')
 const defaultEncoding = 'ISO-8859-1'
 
 exports.tokenize = function(contents) {
-    contents = contents.replace(/\r/g, '')
-
     let tokens = []
     let rules = {
-        ignore: /^\s+/,
+        newline: /^\n/,
+        whitespace: /^[^\S\n]+/,
         parenthesis: /^(\(|\))/,
         semicolon: /^;/,
         prop_ident: /^[A-Za-z]+/,
@@ -21,22 +20,36 @@ exports.tokenize = function(contents) {
     }
 
     while (contents.length > 0) {
-        let token = null
-        let length = 1
+        let match = null
+        let pos = 0
+        let [row, col] = [0, 0]
 
         for (let type in rules) {
-            let matches = rules[type].exec(contents)
-            if (!matches) continue
+            match = rules[type].exec(contents)
+            if (match == null) continue
 
-            let value = matches[0]
-            length = value.length
-            token = {type, value}
+            let value = match[0]
+            let length = value.length
 
+            if (!['newline', 'whitespace'].includes(type)) {
+                tokens.push({type, value, row, col, pos})
+            }
+
+            // Update source position
+
+            if (type === 'newline') {
+                row++
+                col = 0
+            } else {
+                col += value.length
+            }
+
+            pos += value.length
             break
         }
 
-        if (token && token[0] !== 'ignore') tokens.push(token)
-        contents = contents.substr(length)
+        if (match == null) throw new Error(`Unexpected SGF token at ${row + 1}:${col + 1}`)
+        contents = contents.slice(length)
     }
 
     return tokens
