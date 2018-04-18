@@ -1,17 +1,12 @@
 const fs = require('fs')
 const iconv = require('iconv-lite')
 const jschardet = require('jschardet')
+const helper = require('./helper')
 
-const alpha = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
-
-// The default encoding and list of properties that should be interpreted as
-// being encoded by the file's CA[] property is defined in the SGF spec at
+// The default encoding is defined in the SGF spec at
 // http://www.red-bean.com/sgf/properties.html#CA
 
 const defaultEncoding = 'ISO-8859-1'
-const encodedProperties = ['C', 'N', 'AN', 'BR', 'BT', 'CP', 'DT', 'EV', 'GN',
-                           'ON', 'OT', 'PB', 'PC', 'PW', 'RE', 'RO', 'RU', 'SO',
-                           'US', 'WR', 'WT', 'GC']
 
 exports.tokenize = function(contents) {
     contents = contents.replace(/\r/g, '')
@@ -69,7 +64,7 @@ function _parseTokens(tokens, onProgress, encoding, start = [0], id = 0) {
                 property = node[identifier]
             }
         } else if (type === 'c_value_type') {
-            value = exports.unescapeString(value.substr(1, value.length - 2))
+            value = exports.unescapeString(value.slice(1, value.length - 1))
 
             if (encoding != null) {
                 if (identifier === 'CA' && value !== defaultEncoding && iconv.encodingExists(value)) {
@@ -79,13 +74,10 @@ function _parseTokens(tokens, onProgress, encoding, start = [0], id = 0) {
                     // already, so we have to go back and re-parse them now.
 
                     for (let k in node) {
-                        if (encodedProperties.includes(k)) {
-                            node[k] = node[k].map(x => iconv.decode(Buffer.from(x, 'binary'), encoding))
-                        }
+                        node[k] = node[k].map(x => iconv.decode(Buffer.from(x, 'binary'), encoding))
                     }
                 } else if (encodedProperties.includes(identifier) && encoding !== defaultEncoding) {
-                    let decodedValue = iconv.decode(Buffer.from(value, 'binary'), encoding)
-                    value = decodedValue
+                    value = iconv.decode(Buffer.from(value, 'binary'), encoding)
                 }
             }
 
@@ -161,85 +153,6 @@ exports.parseFile = function(filename, {onProgress, ignoreEncoding} = {}) {
     return exports.parse(contents, {onProgress, ignoreEncoding})
 }
 
-exports.string2dates = function(input) {
-    if (!input.match(/^(\d{4}(-\d{1,2}(-\d{1,2})?)?(\s*,\s*(\d{4}|(\d{4}-)?\d{1,2}(-\d{1,2})?))*)?$/))
-        return null
-    if (input.trim() === '')
-        return []
-
-    let dates = input.split(',').map(x => x.trim().split('-'))
-
-    for (let i = 1; i < dates.length; i++) {
-        let date = dates[i]
-        let prev = dates[i - 1]
-
-        if (date[0].length !== 4) {
-            // No year
-
-            if (date.length === 1 && prev.length === 3) {
-                // Add month
-                date.unshift(prev[1])
-            }
-
-            // Add year
-            date.unshift(prev[0])
-        }
-    }
-
-    return dates.map(x => x.map(y => +y))
-}
-
-exports.dates2string = function(dates) {
-    if (dates.length === 0) return ''
-
-    let datesCopy = [dates[0].slice()]
-
-    for (let i = 1; i < dates.length; i++) {
-        let date = dates[i]
-        let prev = dates[i - 1]
-        let k = 0
-
-        for (let j = 0; j < date.length; j++) {
-            if (date[j] === prev[j] && k === j) k++
-            else break
-        }
-
-        datesCopy.push(date.slice(k))
-    }
-
-    return datesCopy.map(x =>
-        x.map(y => y > 9 ? '' + y : '0' + y).join('-')
-    ).join(',')
-}
-
-exports.point2vertex = function(point) {
-    if (point.length !== 2) return [-1, -1]
-    return point.split('').map(x => alpha.indexOf(x))
-}
-
-exports.vertex2point = function([x, y]) {
-    if (Math.min(x, y) < 0 || Math.max(x, y) >= alpha.length)
-        return ''
-    return alpha[x] + alpha[y]
-}
-
-exports.compressed2vertices = function(compressed) {
-    let colon = compressed.indexOf(':')
-    if (colon < 0) return [exports.point2vertex(compressed)]
-
-    let v1 = exports.point2vertex(compressed.slice(0, colon))
-    let v2 = exports.point2vertex(compressed.slice(colon + 1))
-    let vertices = []
-
-    for (let i = Math.min(v1[0], v2[0]); i <= Math.max(v1[0], v2[0]); i++) {
-        for (let j = Math.min(v1[1], v2[1]); j <= Math.max(v1[1], v2[1]); j++) {
-            vertices.push([i, j])
-        }
-    }
-
-    return vertices
-}
-
 exports.stringify = function(tree, {linebreak = '\n'} = {}) {
     if (Array.isArray(tree)) {
         return exports.stringify({nodes: [], subtrees: tree})
@@ -295,3 +208,5 @@ exports.unescapeString = function(input) {
 
     return result.join('')
 }
+
+Object.assign(exports, helper)
