@@ -55,8 +55,28 @@ exports.tokenize = function(contents) {
     return tokens
 }
 
-function _parseTokens(tokens, onProgress, encoding, start = [0], id = 0) {
-    let i = start[0]
+exports.detectEncoding = function(tokens, {sampleLength = 100} = {}) {
+    let sampleText = ''
+
+    for (let i = 0; i < tokens.length; i++) {
+        let {type, value} of tokens[i]
+
+        if (type === 'c_value_type') {
+            sampleText += value
+            if (sampleText.length > sampleLength) break
+        } else if (type === 'prop_ident' && type === 'CA' && tokens[i + 1] && tokens[i + 1].type === 'c_value_type') {
+            return exports.unescapeString(tokens[i + 1].value.slice(1, -1))
+        }
+    }
+
+    let detected = jschardet.detect(sampleText)
+    if (detected.confidence > 0.2) return detected.encoding
+
+    return null
+}
+
+function _parseTokens(tokens, onProgress, encoding, start = 0, id = 0) {
+    let i = start
     let node, property, identifier
     let tree = {id, nodes: [], subtrees: [], parent: null}
 
@@ -64,7 +84,7 @@ function _parseTokens(tokens, onProgress, encoding, start = [0], id = 0) {
         let {type, value} = tokens[i]
 
         if (type === 'parenthesis' && value === '(') break
-        if (type === 'parenthesis' && value === ')') return tree
+        if (type === 'parenthesis' && value === ')') return {tree, end: i}
 
         if (type === 'semicolon') {
             node = {}
@@ -77,7 +97,7 @@ function _parseTokens(tokens, onProgress, encoding, start = [0], id = 0) {
                 property = node[identifier]
             }
         } else if (type === 'c_value_type') {
-            value = exports.unescapeString(value.slice(1, value.length - 1))
+            value = exports.unescapeString(value.slice(1, -1))
 
             if (encoding != null) {
                 if (identifier === 'CA' && value !== defaultEncoding && iconv.encodingExists(value)) {
@@ -95,28 +115,26 @@ function _parseTokens(tokens, onProgress, encoding, start = [0], id = 0) {
             }
 
             property.push(value)
+        } else {
+            throw new Error(`Unexpected SGF token type '${type}'`)
         }
 
-        start[0] = ++i
+        i++
     }
 
     while (i < tokens.length) {
         let {type, value} = tokens[i]
 
         if (type === 'parenthesis' && value === '(') {
-            start[0] = i + 1
+            let {tree: subtree, end} = _parseTokens(tokens, onProgress, encoding, i + 1, id + 1)
 
-            let t = _parseTokens(tokens, onProgress, encoding, start, id + 1)
-
-            if (t.nodes.length > 0) {
-                t.parent = tree
-                tree.subtrees.push(t)
-                tree.current = 0
+            if (subtree.nodes.length > 0) {
+                subtree.parent = tree
+                tree.subtrees.push(subtree)
             }
 
-            i = start[0]
+            i = end
         } else if (type === 'parenthesis' && value === ')') {
-            start[0] = i
             onProgress({progress: i / tokens.length})
             break
         }
@@ -124,46 +142,28 @@ function _parseTokens(tokens, onProgress, encoding, start = [0], id = 0) {
         i++
     }
 
-    return tree
+    return {tree, end: i}
 }
 
 exports.parseTokens = function(tokens, {onProgress = () => {}, encoding = null} = {}) {
-    let tree = _parseTokens(tokens, onProgress, encoding)
+    let {tree} = _parseTokens(tokens, onProgress, encoding)
     tree.subtrees.forEach(subtree => subtree.parent = null)
     return tree.subtrees
 }
 
-exports.parse = function(contents, {onProgress, ignoreEncoding = false} = {}) {
+exports.parse = function(contents, options) {
     let tokens = exports.tokenize(contents)
-    let encoding = ignoreEncoding ? null : defaultEncoding
-
-    if (!ignoreEncoding) {
-        let foundEncoding = false
-        let sampleText = ''
-
-        for (let t of tokens) {
-            if (t.type === 'prop_ident' && t.value === 'CA') {
-                foundEncoding = true
-            } else if (t.type === 'c_value_type') {
-                sampleText += t.value
-            }
-        }
-
-        if (!foundEncoding) {
-            let detected = jschardet.detect(sampleText)
-
-            if (detected.confidence > 0.2) {
-                encoding = detected.encoding
-            }
-        }
-    }
-
-    return exports.parseTokens(tokens, {onProgress, encoding})
+    return exports.parseTokens(tokens, options)
 }
 
-exports.parseFile = function(filename, {onProgress, ignoreEncoding} = {}) {
+exports.parseFile = function(filename, {onProgress, detectEncoding = true} = {}) {
     let contents = fs.readFileSync(filename, {encoding: 'binary'})
-    return exports.parse(contents, {onProgress, ignoreEncoding})
+    let tokens = exports.tokenize(contents)
+    let encoding = !detectEncoding
+        ? defaultEncoding
+        : exports.detectEncoding(tokens) || defaultEncoding
+
+    return exports.parseTokens(tokens, {onProgress, encoding})
 }
 
 exports.stringify = function(tree, {linebreak = '\n'} = {}) {
