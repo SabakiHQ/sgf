@@ -54,14 +54,13 @@ exports.string2dates = function(input) {
         }
     }
 
-    return dates.map(([year, month, day]) => new Date(+year, +month - 1, +day))
+    return dates.map(x => x.map(y => +y))
 }
 
 exports.dates2string = function(dates) {
     if (dates.length === 0) return ''
 
-    dates = dates.map(date => [date.getFullYear(), date.getMonth() + 1, date.getDate()])
-    let datesCopy = [dates[0]]
+    let datesCopy = [dates[0].slice()]
 
     for (let i = 1; i < dates.length; i++) {
         let date = dates[i]
