@@ -31,7 +31,9 @@ exports.string2dates = function(input) {
 exports.dates2string = function(dates) {
     if (dates.length === 0) return ''
 
-    dates = dates.map(date => [date.getFullYear(), date.getMonth() + 1, date.getDate()])
+    dates = dates.sort((x, y) => x - y)
+        .map(date => [date.getFullYear(), date.getMonth() + 1, date.getDate()])
+
     let datesCopy = [dates[0]]
 
     for (let i = 1; i < dates.length; i++) {
