@@ -97,3 +97,43 @@ t.test('should ignore empty subtrees', t => {
 
     t.end()
 })
+
+let languageMap = {
+    'chinese': '围棋',
+    'japanese': '囲碁',
+    'korean': '바둑'
+}
+
+for (language in languageMap) {
+    t.test('should be able to decode non-UTF-8 text nodes', t => {
+        t.equal(
+            sgf.parseFile(`${__dirname}/${language}.sgf`)[0].nodes[2].C[0],
+            `${languageMap[language]} is fun`
+        )
+
+        t.end()
+    })
+}
+
+t.test('should be able to go back and re-parse attributes set before CA', t => {
+    t.equal(
+        sgf.parseFile(__dirname + '/chinese.sgf')[0].nodes[0].PW[0],
+        '柯洁'
+    )
+
+    t.equal(
+        sgf.parseFile(__dirname + '/chinese.sgf')[0].nodes[0].PB[0],
+        '古力'
+    )
+
+    t.end()
+})
+
+t.test('should ignore unknown encodings', t => {
+    t.notEqual(
+        sgf.parseFile(__dirname + '/japanese_bad.sgf')[0].nodes[2].C[0],
+        `${languageMap['japanese']} is fun`
+    )
+
+    t.end()
+})
