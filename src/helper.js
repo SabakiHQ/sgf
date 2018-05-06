@@ -29,7 +29,7 @@ exports.unescapeString = function(input) {
     return result.join('')
 }
 
-exports.string2dates = function(input) {
+exports.parseDates = function(input) {
     if (!input.match(/^(\d{4}(-\d{1,2}(-\d{1,2})?)?(\s*,\s*(\d{4}|(\d{4}-)?\d{1,2}(-\d{1,2})?))*)?$/))
         return null
     if (input.trim() === '')
@@ -57,7 +57,7 @@ exports.string2dates = function(input) {
     return dates.map(x => x.map(y => +y))
 }
 
-exports.dates2string = function(dates) {
+exports.stringifyDates = function(dates) {
     if (dates.length === 0) return ''
 
     let datesCopy = [dates[0].slice()]
@@ -80,23 +80,23 @@ exports.dates2string = function(dates) {
     ).join(',')
 }
 
-exports.point2vertex = function(point) {
-    if (point.length !== 2) return [-1, -1]
-    return point.split('').map(x => alpha.indexOf(x))
+exports.parseVertex = function(input) {
+    if (input.length !== 2) return [-1, -1]
+    return input.split('').map(x => alpha.indexOf(x))
 }
 
-exports.vertex2point = function([x, y]) {
+exports.stringifyVertex = function([x, y]) {
     if (Math.min(x, y) < 0 || Math.max(x, y) >= alpha.length)
         return ''
     return alpha[x] + alpha[y]
 }
 
-exports.compressed2vertices = function(compressed) {
-    let colon = compressed.indexOf(':')
-    if (colon < 0) return [exports.point2vertex(compressed)]
+exports.parseCompressedVertices = function(input) {
+    let colon = input.indexOf(':')
+    if (colon < 0) return [exports.parseVertex(input)]
 
-    let v1 = exports.point2vertex(compressed.slice(0, colon))
-    let v2 = exports.point2vertex(compressed.slice(colon + 1))
+    let v1 = exports.parseVertex(input.slice(0, colon))
+    let v2 = exports.parseVertex(input.slice(colon + 1))
     let vertices = []
 
     for (let i = Math.min(v1[0], v2[0]); i <= Math.max(v1[0], v2[0]); i++) {
