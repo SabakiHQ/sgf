@@ -2,26 +2,26 @@ const {escapeString} = require('./helper')
 
 exports.stringify = function(tree, {linebreak = '\n'} = {}) {
     if (Array.isArray(tree)) {
-        return exports.stringify({nodes: [], subtrees: tree})
+        return exports.stringify({nodes: [], subtrees: tree}, {linebreak})
     }
 
-    let output = ''
+    let output = []
 
     for (let node of tree.nodes) {
-        output += ';'
+        output.push(';')
 
         for (let id in node) {
             if (id.toUpperCase() !== id) continue
 
-            output += `${id}[${node[id].map(escapeString).join('][')}]`
+            output.push(id, '[', node[id].map(escapeString).join(']['), ']')
         }
 
-        output += linebreak
+        output.push(linebreak)
     }
 
     for (let subtree of tree.subtrees) {
-        output += `(${exports.stringify(subtree)})`
+        output.push('(', exports.stringify(subtree, {linebreak}), ')')
     }
 
-    return output
+    return output.join('')
 }
