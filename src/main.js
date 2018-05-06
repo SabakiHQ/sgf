@@ -1,6 +1,7 @@
 const fs = require('fs')
 const iconv = require('iconv-lite')
 const jschardet = require('jschardet')
+const tokenize = require('./tokenize')
 const helper = require('./helper')
 
 // The default encoding is defined in the SGF spec at
@@ -8,58 +9,11 @@ const helper = require('./helper')
 
 const defaultEncoding = 'ISO-8859-1'
 
-exports.tokenize = function(contents) {
-    let tokens = []
-    let rules = {
-        newline: /^\n/,
-        whitespace: /^[^\S\n]+/,
-        parenthesis: /^(\(|\))/,
-        semicolon: /^;/,
-        prop_ident: /^[A-Za-z]+/,
-        c_value_type: /^\[([^\\\]]|\\[^])*\]/
-    }
-
-    while (contents.length > 0) {
-        let match = null
-        let pos = 0
-        let [row, col] = [0, 0]
-
-        for (let type in rules) {
-            match = rules[type].exec(contents)
-            if (match == null) continue
-
-            let value = match[0]
-            let length = value.length
-
-            if (!['newline', 'whitespace'].includes(type)) {
-                tokens.push({type, value, row, col, pos})
-            }
-
-            // Update source position
-
-            if (type === 'newline') {
-                row++
-                col = 0
-            } else {
-                col += value.length
-            }
-
-            pos += value.length
-            break
-        }
-
-        if (match == null) throw new Error(`Unexpected SGF token at ${row + 1}:${col + 1}`)
-        contents = contents.slice(length)
-    }
-
-    return tokens
-}
-
 exports.detectEncoding = function(tokens, {sampleLength = 100} = {}) {
     let sampleText = ''
 
     for (let i = 0; i < tokens.length; i++) {
-        let {type, value} of tokens[i]
+        let {type, value} = tokens[i]
 
         if (type === 'c_value_type') {
             sampleText += value
@@ -152,13 +106,13 @@ exports.parseTokens = function(tokens, {onProgress = () => {}, encoding = null} 
 }
 
 exports.parse = function(contents, options) {
-    let tokens = exports.tokenize(contents)
+    let tokens = tokenize(contents)
     return exports.parseTokens(tokens, options)
 }
 
 exports.parseFile = function(filename, {onProgress, detectEncoding = true} = {}) {
     let contents = fs.readFileSync(filename, {encoding: 'binary'})
-    let tokens = exports.tokenize(contents)
+    let tokens = tokenize(contents)
     let encoding = !detectEncoding
         ? defaultEncoding
         : exports.detectEncoding(tokens) || defaultEncoding
@@ -222,4 +176,4 @@ exports.unescapeString = function(input) {
     return result.join('')
 }
 
-Object.assign(exports, helper)
+Object.assign(exports, {tokenize}, helper)
