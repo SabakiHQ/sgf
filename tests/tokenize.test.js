@@ -2,7 +2,7 @@ const t = require('tap')
 const {tokenize} = require('..')
 
 t.test('should track source position correctly', t => {
-    t.deepEqual(tokenize('(;B[aa]SZ[19]\n;AB[cc][dd:ee])'), [
+    t.deepEqual(tokenize('(;B[aa]SZ[19]\n;AB[cc]\n[dd:ee])'), [
         {type: 'parenthesis', value: '(', row: 0, col: 0, pos: 0},
         {type: 'semicolon', value: ';', row: 0, col: 1, pos: 1},
         {type: 'prop_ident', value: 'B', row: 0, col: 2, pos: 2},
@@ -12,8 +12,8 @@ t.test('should track source position correctly', t => {
         {type: 'semicolon', value: ';', row: 1, col: 0, pos: 14},
         {type: 'prop_ident', value: 'AB', row: 1, col: 1, pos: 15},
         {type: 'c_value_type', value: '[cc]', row: 1, col: 3, pos: 17},
-        {type: 'c_value_type', value: '[dd:ee]', row: 1, col: 7, pos: 21},
-        {type: 'parenthesis', value: ')', row: 1, col: 14, pos: 28}
+        {type: 'c_value_type', value: '[dd:ee]', row: 2, col: 0, pos: 22},
+        {type: 'parenthesis', value: ')', row: 2, col: 7, pos: 29}
     ])
 
     t.end()

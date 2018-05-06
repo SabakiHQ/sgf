@@ -13,14 +13,14 @@ exports.stringify = function(tree, {linebreak = '\n'} = {}) {
         for (let id in node) {
             if (id.toUpperCase() !== id) continue
 
-            output += id + '[' + node[id].map(escapeString).join('][') + ']'
+            output += `${id}[${node[id].map(escapeString).join('][')}]`
         }
 
         output += linebreak
     }
 
     for (let subtree of tree.subtrees) {
-        output += '(' + exports.stringify(subtree) + ')'
+        output += `(${exports.stringify(subtree)})`
     }
 
     return output
