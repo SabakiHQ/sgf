@@ -1,4 +1,4 @@
-module.exports = function(contents) {
+exports.tokenize = function(contents) {
     let tokens = []
     let pos = 0
     let [row, col] = [0, 0]

@@ -1,7 +1,7 @@
 const fs = require('fs')
 const iconv = require('iconv-lite')
 const jschardet = require('jschardet')
-const tokenize = require('./tokenize')
+const {tokenize} = require('./tokenize')
 const helper = require('./helper')
 
 // The default encoding is defined in the SGF spec at
