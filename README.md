@@ -1,6 +1,6 @@
 # sgf [![Build Status](https://travis-ci.org/SabakiHQ/sgf.svg?branch=master)](https://travis-ci.org/SabakiHQ/sgf)
 
-A library for parsing and editing SGF files. This is a work in progress.
+A library for parsing and editing SGF files.
 
 ## Installation
 
@@ -29,7 +29,7 @@ A game tree is represented by a simple JavaScript object with the following prop
 * `subtrees` [`<GameTree[]>`](#game-tree)
 * `parent` [`<GameTree>`](#game-tree) | `<null>`
 
-The nodes are also simple objects. Their keys correspond to node properties which closely matches the [SGF specification](http://www.red-bean.com/sgf/). Each key has an array of strings as value.
+Each node is a simple object. Its keys correspond to node properties which closely matches the [SGF specification](http://www.red-bean.com/sgf/). Each key has an array of strings as value.
 
 ### Basic Functions
 
