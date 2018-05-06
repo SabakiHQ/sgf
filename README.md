@@ -87,3 +87,47 @@ Returns the value in the `CA` property if set. Otherwise, we will try to detect 
     - `linebreak` `<string>` *(optional)* - Default: `"\n"`
 
 Returns an SGF string representing `trees`.
+
+### Helper Functions
+
+#### `sgf.escapeString(input)`
+
+- `input` `<string>`
+
+Escapes `\` and `]` characters and returns the new string.
+
+#### `sgf.unescapeString(input)`
+
+- `input` `<string>`
+
+Resolves escaped characters and returns the new string.
+
+#### `sgf.parseVertex(input)`
+
+- `input` `<string>`
+
+Turns an SGF point string into a vertex, an integer array of the form `[x, y]`. An invalid string will yield `[-1, -1]`.
+
+#### `sgf.stringifyVertex(vertex)`
+
+- `vertex` `<integer[]>`
+
+Turns a vertex into an SGF point string. Returns an empty string if vertex is invalid.
+
+#### `sgf.parseCompressedVertices(input)`
+
+- `input` `<string>`
+
+Turns an SGF compressed point list into an array of vertices.
+
+#### `sgf.parseDates(input)`
+
+- `input` `<string>`
+
+Parses an SGF date string into an array of date arrays, integer arrays of the form `[year, month, date]`.
+
+#### `sgf.stringifyDates(dates)`
+
+- `dates` `<integer[][]>`
+
+Turns an array of date arrays and returns an SGF date string.
