@@ -124,7 +124,7 @@ Turns an SGF compressed point list into an array of vertices.
 
 - `input` `<string>`
 
-Parses an SGF date string into an array of date arrays, integer arrays of the form `[year, month, date]`.
+Parses an SGF date string into an array of date arrays, integer arrays of the form `[year, month, date]`, `[year, month]` or `[year]`.
 
 #### `sgf.stringifyDates(dates)`
 
