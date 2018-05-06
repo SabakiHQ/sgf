@@ -1,5 +1,34 @@
 const alpha = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
+exports.escapeString = function(input) {
+    return input.toString()
+        .replace(/\\/g, '\\\\')
+        .replace(/\]/g, '\\]')
+}
+
+exports.unescapeString = function(input) {
+    let result = []
+    let inBackslash = false
+
+    input = input.replace(/\r/g, '')
+
+    for (let i = 0; i < input.length; i++) {
+        if (!inBackslash) {
+            if (input[i] !== '\\')
+                result.push(input[i])
+            else if (input[i] === '\\')
+                inBackslash = true
+        } else {
+            if (input[i] !== '\n')
+                result.push(input[i])
+
+            inBackslash = false
+        }
+    }
+
+    return result.join('')
+}
+
 exports.string2dates = function(input) {
     if (!input.match(/^(\d{4}(-\d{1,2}(-\d{1,2})?)?(\s*,\s*(\d{4}|(\d{4}-)?\d{1,2}(-\d{1,2})?))*)?$/))
         return null

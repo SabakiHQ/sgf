@@ -19,7 +19,7 @@ exports.detectEncoding = function(tokens, {sampleLength = 100} = {}) {
             sampleText += value
             if (sampleText.length > sampleLength) break
         } else if (type === 'prop_ident' && type === 'CA' && tokens[i + 1] && tokens[i + 1].type === 'c_value_type') {
-            return exports.unescapeString(tokens[i + 1].value.slice(1, -1))
+            return helper.unescapeString(tokens[i + 1].value.slice(1, -1))
         }
     }
 
@@ -51,7 +51,7 @@ function _parseTokens(tokens, onProgress, encoding, start = 0, id = 0) {
                 property = node[identifier]
             }
         } else if (type === 'c_value_type') {
-            value = exports.unescapeString(value.slice(1, -1))
+            value = helper.unescapeString(value.slice(1, -1))
 
             if (encoding != null) {
                 if (identifier === 'CA' && value !== defaultEncoding && iconv.encodingExists(value)) {
@@ -133,7 +133,7 @@ exports.stringify = function(tree, {linebreak = '\n'} = {}) {
         for (let id in node) {
             if (id.toUpperCase() !== id) continue
 
-            output += id + '[' + node[id].map(exports.escapeString).join('][') + ']'
+            output += id + '[' + node[id].map(helper.escapeString).join('][') + ']'
         }
 
         output += linebreak
@@ -144,36 +144,6 @@ exports.stringify = function(tree, {linebreak = '\n'} = {}) {
     }
 
     return output
-}
-
-exports.escapeString = function(input) {
-    return input.toString()
-        .replace(/\\/g, '\\\\')
-        .replace(/\]/g, '\\]')
-        .replace(/\n\n+/g, '\n\n')
-}
-
-exports.unescapeString = function(input) {
-    let result = []
-    let inBackslash = false
-
-    input = input.replace(/\r/g, '')
-
-    for (let i = 0; i < input.length; i++) {
-        if (!inBackslash) {
-            if (input[i] !== '\\')
-                result.push(input[i])
-            else if (input[i] === '\\')
-                inBackslash = true
-        } else {
-            if (input[i] !== '\n')
-                result.push(input[i])
-
-            inBackslash = false
-        }
-    }
-
-    return result.join('')
 }
 
 Object.assign(exports, {tokenize}, helper)
