@@ -32,7 +32,7 @@ exports.detectEncoding = function(tokens, {sampleLength = 100} = {}) {
 function _parseTokens(tokens, getId, onProgress, encoding, start = 0) {
     let i = start
     let node, property, identifier
-    let tree = {id: getId(), nodes: [], subtrees: [], parent: null}
+    let tree = {id: getId(), nodes: [], subtrees: [], current: null, parent: null}
 
     while (i < tokens.length) {
         let {type, value} = tokens[i]
@@ -84,6 +84,7 @@ function _parseTokens(tokens, getId, onProgress, encoding, start = 0) {
 
             if (subtree.nodes.length > 0) {
                 subtree.parent = tree
+                tree.current = 0
                 tree.subtrees.push(subtree)
             }
 
