@@ -18,8 +18,10 @@ exports.detectEncoding = function(tokens, {sampleLength = 100} = {}) {
         if (type === 'c_value_type') {
             sampleText += value
             if (sampleText.length > sampleLength) break
-        } else if (type === 'prop_ident' && type === 'CA' && tokens[i + 1] && tokens[i + 1].type === 'c_value_type') {
-            return unescapeString(tokens[i + 1].value.slice(1, -1))
+        } else if (type === 'prop_ident' && type === 'CA') {
+            if (tokens[i + 1] && tokens[i + 1].type === 'c_value_type') {
+                return unescapeString(tokens[i + 1].value.slice(1, -1))
+            }
         }
     }
 
@@ -54,7 +56,7 @@ function _parseTokens(tokens, getId, onProgress, encoding, start = 0) {
             value = unescapeString(value.slice(1, -1))
 
             if (encoding != null) {
-                if (identifier === 'CA' && value !== defaultEncoding && iconv.encodingExists(value)) {
+                if (identifier === 'CA' && value !== encoding && iconv.encodingExists(value)) {
                     encoding = value
 
                     // We may have already incorrectly parsed some values in this root node
