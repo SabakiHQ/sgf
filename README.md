@@ -52,7 +52,7 @@ Returns an array of objects with the following properties:
     - `encoding` `<string>` | `<null>` *(optional)* - Default: `null`
     - `onProgress` `<Function>` *(optional)*
 
-Returns an array of [game trees](#game-tree). If `encoding` is set to `null`, we will use the `CA` property to determine encoding, otherwise, the default encoding `ISO-8859-1` will be used. `onProgress` will be called with an object with the following keys:
+Returns an array of [game trees](#game-tree). If `encoding` is set to `null`, the `CA` property will be ignored, otherwise, the specified encoding will be used until a `CA` property is encountered whose value will be used thereafter. `onProgress` will be called with an object with the following keys:
 
 - `progress` `<number>` - Between `0` and `1`
 
