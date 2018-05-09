@@ -29,10 +29,10 @@ exports.detectEncoding = function(tokens, {sampleLength = 100} = {}) {
     return null
 }
 
-function _parseTokens(tokens, onProgress, encoding, start = 0, id = 0) {
+function _parseTokens(tokens, getId, onProgress, encoding, start = 0) {
     let i = start
     let node, property, identifier
-    let tree = {id, nodes: [], subtrees: [], parent: null}
+    let tree = {id: getId(), nodes: [], subtrees: [], parent: null}
 
     while (i < tokens.length) {
         let {type, value} = tokens[i]
@@ -80,7 +80,7 @@ function _parseTokens(tokens, onProgress, encoding, start = 0, id = 0) {
         let {type, value} = tokens[i]
 
         if (type === 'parenthesis' && value === '(') {
-            let {tree: subtree, end} = _parseTokens(tokens, onProgress, encoding, i + 1, id + 1)
+            let {tree: subtree, end} = _parseTokens(tokens, getId, onProgress, encoding, i + 1)
 
             if (subtree.nodes.length > 0) {
                 subtree.parent = tree
@@ -99,8 +99,13 @@ function _parseTokens(tokens, onProgress, encoding, start = 0, id = 0) {
     return {tree, end: i}
 }
 
-exports.parseTokens = function(tokens, {onProgress = () => {}, encoding = null} = {}) {
-    let {tree} = _parseTokens(tokens, onProgress, encoding)
+exports.parseTokens = function(tokens, {getId, onProgress = () => {}, encoding = null} = {}) {
+    if (getId == null) {
+        let id = 0
+        getId = () => id++
+    }
+
+    let {tree} = _parseTokens(tokens, getId, onProgress, encoding)
     tree.subtrees.forEach(subtree => subtree.parent = null)
     return tree.subtrees
 }
@@ -110,12 +115,12 @@ exports.parse = function(contents, options) {
     return exports.parseTokens(tokens, options)
 }
 
-exports.parseFile = function(filename, {onProgress, detectEncoding = true} = {}) {
+exports.parseFile = function(filename, {getId, onProgress, detectEncoding = true} = {}) {
     let contents = fs.readFileSync(filename, {encoding: 'binary'})
     let tokens = tokenize(contents)
     let encoding = !detectEncoding
         ? defaultEncoding
         : exports.detectEncoding(tokens) || defaultEncoding
 
-    return exports.parseTokens(tokens, {onProgress, encoding})
+    return exports.parseTokens(tokens, {getId, onProgress, encoding})
 }

@@ -49,12 +49,15 @@ Returns an array of objects with the following properties:
 
 - `tokens` - List of tokens as returned by `sgf.tokenize()`
 - `options` `<Object>` *(optional)*
+    - `getId` `<Function>` *(optional)*
     - `encoding` `<string>` | `<null>` *(optional)* - Default: `null`
     - `onProgress` `<Function>` *(optional)*
 
 Returns an array of [game trees](#game-tree). If `encoding` is set to `null`, the `CA` property will be ignored, otherwise, the specified encoding will be used until a `CA` property is encountered whose value will be used thereafter. `onProgress` will be called with an object with the following keys:
 
 - `progress` `<number>` - Between `0` and `1`
+
+`getId` can be specified to control the id generation. It will be called without any arguments. By default, we will use a consecutive integers starting at `0` as ids.
 
 #### `sgf.parse(contents[, options])`
 
@@ -67,6 +70,7 @@ Returns an array of [game trees](#game-tree).
 
 - `filename` `<string>` - Path to an SGF file
 - `options` `<Object>` *(optional)*
+    - `getId` `<Function>` *(optional)* - See `sgf.parseTokens()`
     - `onProgress` `<Function>` *(optional)* - See `sgf.parseTokens()`
     - `detectEncoding` `<boolean>` *(optional)* - Default: `true`
 
