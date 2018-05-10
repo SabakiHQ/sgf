@@ -18,6 +18,10 @@ const sgf = require('@sabaki/sgf')
 let gametrees = sgf.parseFile('./game.sgf')
 ~~~
 
+## Contributors
+
+A big thanks to [@apetresc](https://github.com/apetresc) and [@fohristiwhirl](https://github.com/fohristiwhirl) for adding decoding and automatic encoding detection functionalities.
+
 ## API
 
 ### Game Tree
