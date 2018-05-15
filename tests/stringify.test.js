@@ -24,10 +24,10 @@ let gametrees = [
     }
 ]
 
-t.test('should stringify multiple game trees', t => {
+t.test('should stringify multiple game trees with correct indentation', t => {
     t.equal(
         stringify(gametrees),
-        '(;B[aa]SZ[19]\n;AB[cc][dd:ee]\n)(;CP[Copyright]\n(;B[ab]\n)(;W[ac]\n))'
+        '(\n  ;B[aa]SZ[19]\n  ;AB[cc][dd:ee]\n)(\n  ;CP[Copyright]\n  (\n    ;B[ab]\n  )(\n    ;W[ac]\n  )\n)\n'
     )
 
     t.end()
