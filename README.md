@@ -1,6 +1,6 @@
 # sgf [![Build Status](https://travis-ci.org/SabakiHQ/sgf.svg?branch=master)](https://travis-ci.org/SabakiHQ/sgf)
 
-A library for parsing and creating SGF files.
+A library for parsing SGF files.
 
 ## Installation
 
