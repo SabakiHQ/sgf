@@ -63,6 +63,8 @@ function _parseTokens(tokens, getId, onProgress, encoding, start = 0) {
                     // already, so we have to go back and re-parse them now.
 
                     for (let k in node) {
+                        if (k === 'CA') continue
+
                         node[k] = node[k].map(x => iconv.decode(Buffer.from(x, 'binary'), encoding))
                     }
                 } else if (encoding !== defaultEncoding) {

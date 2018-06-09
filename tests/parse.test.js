@@ -28,6 +28,20 @@ t.test('should parse multiple nodes', t => {
     t.end()
 })
 
+t.test('should not omit CA property', t => {
+    t.equal(
+        getJSON(sgf.parse('(;B[aa]CA[UTF-8])', {encoding: 'ISO-8859-1'})[0]),
+        getJSON({
+            nodes: [
+                {B: ['aa'], CA: ['UTF-8']},
+            ],
+            subtrees: []
+        })
+    )
+
+    t.end()
+})
+
 t.test('should parse variations', t => {
     t.equal(
         getJSON(sgf.parse('(;B[hh](;W[ii])(;W[hi]C[h]))')[0]),
