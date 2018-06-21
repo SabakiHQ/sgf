@@ -62,7 +62,7 @@ Returns an array of [game trees](#game-tree). If `encoding` is set to `null`, th
 
 - `progress` `<number>` - Between `0` and `1`
 
-`getId` can be specified to control the id generation. It will be called without any arguments. By default, we will use a consecutive integers starting at `0` as ids.
+`getId` can be specified to control the id generation. It will be called without any arguments. By default, we will use consecutive integers starting at `0` as ids.
 
 #### `sgf.parse(contents[, options])`
 
