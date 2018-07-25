@@ -1,3 +1,7 @@
+const iconv = require('iconv-lite')
+const jschardet = require('jschardet')
+const {unescapeString} = require('./helper')
+
 exports.tokenize = function(contents) {
     let tokens = []
     let pos = 0
@@ -40,6 +44,38 @@ exports.tokenize = function(contents) {
         }
 
         if (match == null) throw new Error(`Unexpected SGF token at ${row + 1}:${col + 1}`)
+    }
+
+    return tokens
+}
+
+exports.tokenizeBuffer = function(buffer) {
+    // Guess encoding
+
+    let {encoding} = jschardet.detect(buffer.slice(0, 100))
+    let contents = iconv.decode(buffer, encoding)
+    let tokens = exports.tokenize(contents)
+
+    // Search for encoding
+
+    let givenEncoding = encoding
+
+    for (let i = 0; i < Math.min(tokens.length, 100); i++) {
+        let {type, value} = tokens[i]
+
+        if (
+            type === 'prop_ident'
+            && value === 'CA'
+            && tokens[i + 1]
+            && tokens[i + 1].type === 'c_value_type'
+        ) {
+            givenEncoding = unescapeString(tokens[i + 1].value.slice(1, -1))
+            break
+        }
+    }
+
+    if (encoding !== givenEncoding && iconv.encodingExists(givenEncoding)) {
+        tokens = exports.tokenize(iconv.decode(buffer, givenEncoding))
     }
 
     return tokens

@@ -1,37 +1,9 @@
 const fs = require('fs')
-const iconv = require('iconv-lite')
-const jschardet = require('jschardet')
 
-const {tokenize} = require('./tokenize')
+const {tokenize, tokenizeBuffer} = require('./tokenize')
 const {unescapeString} = require('./helper')
 
-// The default encoding is defined in the SGF spec at
-// http://www.red-bean.com/sgf/properties.html#CA
-const defaultEncoding = 'ISO-8859-1'
-
-exports.detectEncoding = function(tokens, {sampleLength = 100} = {}) {
-    let sampleText = ''
-
-    for (let i = 0; i < tokens.length; i++) {
-        let {type, value} = tokens[i]
-
-        if (type === 'c_value_type') {
-            sampleText += value
-            if (sampleText.length > sampleLength) break
-        } else if (type === 'prop_ident' && type === 'CA') {
-            if (tokens[i + 1] && tokens[i + 1].type === 'c_value_type') {
-                return unescapeString(tokens[i + 1].value.slice(1, -1))
-            }
-        }
-    }
-
-    let detected = jschardet.detect(sampleText)
-    if (detected.confidence > 0.2) return detected.encoding
-
-    return null
-}
-
-function _parseTokens(tokens, getId, onProgress, encoding, start = 0) {
+function _parseTokens(tokens, getId, onProgress, start = 0) {
     let i = start
     let node, property, identifier
     let tree = {id: getId(), nodes: [], subtrees: [], current: null, parent: null}
@@ -53,26 +25,7 @@ function _parseTokens(tokens, getId, onProgress, encoding, start = 0) {
                 property = node[identifier]
             }
         } else if (type === 'c_value_type') {
-            value = unescapeString(value.slice(1, -1))
-
-            if (encoding != null) {
-                if (identifier === 'CA' && value !== encoding && iconv.encodingExists(value)) {
-                    encoding = value
-
-                    // We may have already incorrectly parsed some values in this root node
-                    // already, so we have to go back and re-parse them now.
-
-                    for (let k in node) {
-                        if (k === 'CA') continue
-
-                        node[k] = node[k].map(x => iconv.decode(Buffer.from(x, 'binary'), encoding))
-                    }
-                } else if (encoding !== defaultEncoding) {
-                    value = iconv.decode(Buffer.from(value, 'binary'), encoding)
-                }
-            }
-
-            property.push(value)
+            property.push(unescapeString(value.slice(1, -1)))
         } else {
             throw new Error(`Unexpected SGF token type '${type}'`)
         }
@@ -84,7 +37,7 @@ function _parseTokens(tokens, getId, onProgress, encoding, start = 0) {
         let {type, value} = tokens[i]
 
         if (type === 'parenthesis' && value === '(') {
-            let {tree: subtree, end} = _parseTokens(tokens, getId, onProgress, encoding, i + 1)
+            let {tree: subtree, end} = _parseTokens(tokens, getId, onProgress, i + 1)
 
             if (subtree.nodes.length > 0) {
                 subtree.parent = tree
@@ -104,28 +57,26 @@ function _parseTokens(tokens, getId, onProgress, encoding, start = 0) {
     return {tree, end: i}
 }
 
-exports.parseTokens = function(tokens, {getId, onProgress = () => {}, encoding = null} = {}) {
+exports.parseTokens = function(tokens, {getId, onProgress = () => {}} = {}) {
     if (getId == null) {
         let id = 0
         getId = () => id++
     }
 
-    let {tree} = _parseTokens(tokens, getId, onProgress, encoding)
+    let {tree} = _parseTokens(tokens, getId, onProgress)
     tree.subtrees.forEach(subtree => subtree.parent = null)
+
     return tree.subtrees
 }
 
 exports.parse = function(contents, options) {
-    let tokens = tokenize(contents)
-    return exports.parseTokens(tokens, options)
+    return exports.parseTokens(tokenize(contents), options)
 }
 
-exports.parseFile = function(filename, {getId, onProgress, detectEncoding = true} = {}) {
-    let contents = fs.readFileSync(filename, {encoding: 'binary'})
-    let tokens = tokenize(contents)
-    let encoding = !detectEncoding
-        ? defaultEncoding
-        : exports.detectEncoding(tokens) || defaultEncoding
+exports.parseBuffer = function(buffer, options) {
+    return exports.parseTokens(tokenizeBuffer(buffer), options)
+}
 
-    return exports.parseTokens(tokens, {getId, onProgress, encoding})
+exports.parseFile = function(filename, options) {
+    return exports.parseBuffer(fs.readFileSync(filename), options)
 }
