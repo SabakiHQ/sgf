@@ -151,3 +151,19 @@ t.test('should ignore unknown encodings', t => {
 
     t.end()
 })
+
+t.test('should ignore BOM markers', t => {
+    t.doesNotThrow(() => {
+        sgf.parseFile(__dirname + '/utf8bom.sgf')
+    })
+
+    t.end()
+})
+
+t.test('should parse a UTF-16 LE file correctly', t => {
+    t.doesNotThrow(() => {
+        sgf.parseFile(__dirname + '/utf16le.sgf')
+    })
+
+    t.end()
+})
