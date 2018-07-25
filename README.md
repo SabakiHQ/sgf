@@ -50,15 +50,20 @@ Returns an array of objects with the following properties:
 - `col` `<integer>` - Zero-based index of column where the token starts
 - `pos` `<integer>` - Index in `contents` where the token starts
 
+#### `sgf.tokenizeBuffer(buffer)`
+
+- `buffer` [`<Buffer>`](https://nodejs.org/api/buffer.html) - SGF input
+
+Returns an array of tokens as in [sgf.tokenize](#sgftokenizecontents).
+
 #### `sgf.parseTokens(tokens[, options])`
 
 - `tokens` - List of tokens as returned by `sgf.tokenize()`
 - `options` `<Object>` *(optional)*
     - `getId` `<Function>` *(optional)*
-    - `encoding` `<string>` | `<null>` *(optional)* - Default: `null`
     - `onProgress` `<Function>` *(optional)*
 
-Returns an array of [game trees](#game-tree). If `encoding` is set to `null`, the `CA` property will be ignored, otherwise, the specified encoding will be used until a `CA` property is encountered whose value will be used thereafter. `onProgress` will be called with an object with the following keys:
+Returns an array of [game trees](#game-tree). `onProgress` will be called with an object with the following keys:
 
 - `progress` `<number>` - Between `0` and `1`
 
@@ -71,23 +76,17 @@ Returns an array of [game trees](#game-tree). If `encoding` is set to `null`, th
 
 Returns an array of [game trees](#game-tree).
 
+#### `sgf.parseBuffer(buffer[, options])`
+
+- `buffer` [`<Buffer>`](https://nodejs.org/api/buffer.html) - The buffer
+- `options` `<Object>` *(optional)* - See `sgf.parseTokens()`
+
 #### `sgf.parseFile(filename[, options])`
 
 - `filename` `<string>` - Path to an SGF file
-- `options` `<Object>` *(optional)*
-    - `getId` `<Function>` *(optional)* - See `sgf.parseTokens()`
-    - `onProgress` `<Function>` *(optional)* - See `sgf.parseTokens()`
-    - `detectEncoding` `<boolean>` *(optional)* - Default: `true`
+- `options` `<Object>` *(optional)* - See `sgf.parseTokens()`
 
 Returns an array of [game trees](#game-tree).
-
-#### `sgf.detectEncoding(tokens[, options])`
-
-- `tokens` - List of tokens as returned by `sgf.tokenize()`
-- `options` `<Object>` *(optional)*
-    - `sampleLength` `<integer>` *(optional)* - Default: `100`
-
-Returns the value in the `CA` property if set. Otherwise, we will try to detect the encoding automatically.
 
 #### `sgf.stringify(trees[, options])`
 
