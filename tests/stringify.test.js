@@ -42,6 +42,17 @@ t.test('should respect line break option', t => {
     t.end()
 })
 
+t.test('avoid stringifying into tree with only child subtree', t => {
+    t.equal(
+        stringify([
+            {nodes: [{B: ['aa']}], subtrees: [{nodes: [{W: ['bb']}], subtrees: []}]}
+        ], {linebreak: ''}),
+        '(;B[aa];W[bb])'
+    )
+
+    t.end()
+})
+
 t.test('should ignore mixed case node properties', t => {
     t.equal(
         stringify({

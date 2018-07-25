@@ -20,17 +20,21 @@ exports.stringify = function(tree, {linebreak = '\n', level = 0} = {}) {
         output.push(linebreak)
     }
 
-    if (tree.subtrees.length > 0) output.push(indent)
+    if (tree.subtrees.length > 1 || tree.subtrees.length > 0 && level === 0) {
+        if (tree.subtrees.length > 0) output.push(indent)
 
-    for (let subtree of tree.subtrees) {
-        output.push(
-            '(', linebreak,
-            exports.stringify(subtree, {linebreak, level: level + 1}),
-            indent, ')'
-        )
+        for (let subtree of tree.subtrees) {
+            output.push(
+                '(', linebreak,
+                exports.stringify(subtree, {linebreak, level: level + 1}),
+                indent, ')'
+            )
+        }
+
+        output.push(linebreak)
+    } else if (tree.subtrees.length === 1) {
+        output.push(exports.stringify(tree.subtrees[0], {linebreak, level}))
     }
-
-    if (tree.subtrees.length > 0) output.push(linebreak)
 
     return output.join('')
 }
