@@ -54,7 +54,7 @@ Returns an array of objects with the following properties:
 
 - `buffer` [`<Buffer>`](https://nodejs.org/api/buffer.html) - SGF input
 
-Returns an array of tokens as in [sgf.tokenize](#sgftokenizecontents).
+Returns an array of tokens as in [sgf.tokenize](#sgftokenizecontents). Automatically detects encoding.
 
 #### `sgf.parseTokens(tokens[, options])`
 
@@ -81,12 +81,14 @@ Returns an array of [game trees](#game-tree).
 - `buffer` [`<Buffer>`](https://nodejs.org/api/buffer.html) - The buffer
 - `options` `<Object>` *(optional)* - See `sgf.parseTokens()`
 
+Returns an array of [game trees](#game-tree). Automatically detects encoding.
+
 #### `sgf.parseFile(filename[, options])`
 
 - `filename` `<string>` - Path to an SGF file
 - `options` `<Object>` *(optional)* - See `sgf.parseTokens()`
 
-Returns an array of [game trees](#game-tree).
+Returns an array of [game trees](#game-tree). Automatically detects encoding.
 
 #### `sgf.stringify(trees[, options])`
 
