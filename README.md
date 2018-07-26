@@ -54,7 +54,7 @@ Returns an array of objects with the following properties:
 
 - `buffer` [`<Buffer>`](https://nodejs.org/api/buffer.html) - SGF input
 
-Returns an array of tokens as in [sgf.tokenize](#sgftokenizecontents). Automatically detects encoding.
+Returns an array of tokens as in [`sgf.tokenize()`](#sgftokenizecontents). Automatically detects encoding.
 
 #### `sgf.parseTokens(tokens[, options])`
 
