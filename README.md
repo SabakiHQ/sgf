@@ -34,7 +34,7 @@ A game tree is represented by a simple JavaScript object with the following prop
 * `current` `<integer>` | `<null>` - The index of the current active subtree, `null` if there are no subtrees
 * `parent` [`<GameTree>`](#game-tree) | `<null>` - A reference to the parent game tree
 
-Each node is a simple object. Its keys correspond to node properties which closely matches the [SGF specification](http://www.red-bean.com/sgf/). Each key has an array of strings as value.
+Each node is a simple object. Its keys correspond to node properties which matches their [SGF property](https://www.red-bean.com/sgf/proplist.html) equivalent. Each key has an array of strings as value.
 
 ### Basic Functions
 
