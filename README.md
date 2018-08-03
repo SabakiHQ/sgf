@@ -56,7 +56,7 @@ Returns an array of objects with the following properties:
 - `options` `<Object>` *(optional)*
     - `encoding` `<string>` *(optional)*
 
-Returns an array of tokens as in [`sgf.tokenize()`](#sgftokenizecontents). If `encoding` isn't set, we will automatically detect encoding.
+Returns an array of tokens as in [`sgf.tokenize()`](#sgftokenizecontents). If `encoding` isn't set, we will automatically choose an encoding. Automatic encoding detection is only possible if peer dependencies are installed, otherwise UTF-8 will be used.
 
 #### `sgf.parseTokens(tokens[, options])`
 
@@ -82,11 +82,11 @@ Returns an array of [game trees](#game-tree).
 
 - `buffer` [`<Buffer>`](https://nodejs.org/api/buffer.html) - The buffer
 - `options` `<Object>` *(optional)*
+    - `encoding` `<string>` *(optional)* - See [`sgf.tokenizeBuffer()`](#sgftokenizebufferbuffer-options)
     - `getId` `<Function>` *(optional)* - See [`sgf.parseTokens()`](#sgfparsetokenstokenscontents-options)
     - `onProgress` `<Function>` *(optional)* - See [`sgf.parseTokens()`](#sgfparsetokenstokenscontents-options)
-    - `encoding` `<string>` *(optional)* - See [`sgf.tokenizeBuffer()`](#sgftokenizebufferbuffer-options)
 
-Returns an array of [game trees](#game-tree). Automatically detects encoding.
+Returns an array of [game trees](#game-tree).
 
 #### `sgf.parseFile(filename[, options])`
 
