@@ -4,7 +4,7 @@
   "description": "A library for parsing SGF files.",
   "main": "./src/main.js",
   "scripts": {
-    "test": "tap tests/*.test.js"
+    "test": "npm i iconv-lite@~0.4 jschardet@^1.0 --no-save && tap tests/*.test.js"
   },
   "repository": {
     "type": "git",
@@ -28,8 +28,9 @@
   "devDependencies": {
     "tap": "^11.1.4"
   },
-  "dependencies": {
-    "iconv-lite": "^0.4.21",
-    "jschardet": "^1.6.0"
-  }
+  "peerDependencies": {
+    "iconv-lite": "0.4.x",
+    "jschardet": "1.x"
+  },
+  "dependencies": {}
 }

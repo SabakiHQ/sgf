@@ -1,5 +1,5 @@
-const iconv = require('iconv-lite')
-const jschardet = require('jschardet')
+const iconv = require('./iconv-lite')
+const jschardet = require('./jschardet')
 const {unescapeString} = require('./helper')
 
 exports.tokenize = function(contents) {
