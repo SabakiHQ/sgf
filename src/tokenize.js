@@ -49,16 +49,20 @@ exports.tokenize = function(contents) {
     return tokens
 }
 
-exports.tokenizeBuffer = function(buffer) {
+exports.tokenizeBuffer = function(buffer, {encoding = null}) {
+    if (encoding != null) {
+        return exports.tokenize(iconv.decode(buffer, encoding))
+    }
+
     // Guess encoding
 
-    let {encoding} = jschardet.detect(buffer.slice(0, 100))
-    let contents = iconv.decode(buffer, encoding)
+    let detectedEncoding = jschardet.detect(buffer.slice(0, 100)).encoding
+    let contents = iconv.decode(buffer, detectedEncoding)
     let tokens = exports.tokenize(contents)
 
     // Search for encoding
 
-    let givenEncoding = encoding
+    let givenEncoding = detectedEncoding
 
     for (let i = 0; i < Math.min(tokens.length, 100); i++) {
         let {type, value} = tokens[i]
@@ -74,7 +78,7 @@ exports.tokenizeBuffer = function(buffer) {
         }
     }
 
-    if (encoding !== givenEncoding && iconv.encodingExists(givenEncoding)) {
+    if (detectedEncoding !== givenEncoding && iconv.encodingExists(givenEncoding)) {
         tokens = exports.tokenize(iconv.decode(buffer, givenEncoding))
     }
 

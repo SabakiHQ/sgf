@@ -50,15 +50,17 @@ Returns an array of objects with the following properties:
 - `col` `<integer>` - Zero-based index of column where the token starts
 - `pos` `<integer>` - Index in `contents` where the token starts
 
-#### `sgf.tokenizeBuffer(buffer)`
+#### `sgf.tokenizeBuffer(buffer[, options])`
 
 - `buffer` [`<Buffer>`](https://nodejs.org/api/buffer.html) - SGF input
+- `options` `<Object>` *(optional)*
+    - `encoding` `<string>` *(optional)*
 
-Returns an array of tokens as in [`sgf.tokenize()`](#sgftokenizecontents). Automatically detects encoding.
+Returns an array of tokens as in [`sgf.tokenize()`](#sgftokenizecontents). If `encoding` isn't set, we will automatically detect encoding.
 
 #### `sgf.parseTokens(tokens[, options])`
 
-- `tokens` - List of tokens as returned by `sgf.tokenize()`
+- `tokens` - List of tokens as returned by [`sgf.tokenize()`](#sgftokenizecontents)
 - `options` `<Object>` *(optional)*
     - `getId` `<Function>` *(optional)*
     - `onProgress` `<Function>` *(optional)*
@@ -72,21 +74,24 @@ Returns an array of [game trees](#game-tree). `onProgress` will be called with a
 #### `sgf.parse(contents[, options])`
 
 - `contents` `<string>` - SGF input
-- `options` `<Object>` *(optional)* - See `sgf.parseTokens()`
+- `options` `<Object>` *(optional)* - See [`sgf.parseTokens()`](#sgfparsetokenstokenscontents-options)
 
 Returns an array of [game trees](#game-tree).
 
 #### `sgf.parseBuffer(buffer[, options])`
 
 - `buffer` [`<Buffer>`](https://nodejs.org/api/buffer.html) - The buffer
-- `options` `<Object>` *(optional)* - See `sgf.parseTokens()`
+- `options` `<Object>` *(optional)*
+    - `getId` `<Function>` *(optional)* - See [`sgf.parseTokens()`](#sgfparsetokenstokenscontents-options)
+    - `onProgress` `<Function>` *(optional)* - See [`sgf.parseTokens()`](#sgfparsetokenstokenscontents-options)
+    - `encoding` `<string>` *(optional)* - See [`sgf.tokenizeBuffer()`](#sgftokenizebufferbuffer-options)
 
 Returns an array of [game trees](#game-tree). Automatically detects encoding.
 
 #### `sgf.parseFile(filename[, options])`
 
 - `filename` `<string>` - Path to an SGF file
-- `options` `<Object>` *(optional)* - See `sgf.parseTokens()`
+- `options` `<Object>` *(optional)* - See [`sgf.parseBuffer()`](#sgfparsebufferbuffer-options)
 
 Returns an array of [game trees](#game-tree). Automatically detects encoding.
 

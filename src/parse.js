@@ -74,7 +74,7 @@ exports.parse = function(contents, options) {
 }
 
 exports.parseBuffer = function(buffer, options) {
-    return exports.parseTokens(tokenizeBuffer(buffer), options)
+    return exports.parseTokens(tokenizeBuffer(buffer, {encoding: options.encoding}), options)
 }
 
 exports.parseFile = function(filename, options) {
