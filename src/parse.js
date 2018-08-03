@@ -69,14 +69,14 @@ exports.parseTokens = function(tokens, {getId, onProgress = () => {}} = {}) {
     return tree.subtrees
 }
 
-exports.parse = function(contents, options) {
+exports.parse = function(contents, options = {}) {
     return exports.parseTokens(tokenize(contents), options)
 }
 
-exports.parseBuffer = function(buffer, options) {
+exports.parseBuffer = function(buffer, options = {}) {
     return exports.parseTokens(tokenizeBuffer(buffer, {encoding: options.encoding}), options)
 }
 
-exports.parseFile = function(filename, options) {
+exports.parseFile = function(filename, options = {}) {
     return exports.parseBuffer(fs.readFileSync(filename), options)
 }

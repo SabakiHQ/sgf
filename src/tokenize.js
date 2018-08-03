@@ -49,7 +49,7 @@ exports.tokenize = function(contents) {
     return tokens
 }
 
-exports.tokenizeBuffer = function(buffer, {encoding = null}) {
+exports.tokenizeBuffer = function(buffer, {encoding = null} = {}) {
     if (encoding != null) {
         return exports.tokenize(iconv.decode(buffer, encoding))
     }
