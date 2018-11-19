@@ -90,7 +90,7 @@ Pass an object to `dictionary` and it will get filled with references to all the
 #### `sgf.parse(contents[, options])`
 
 - `contents` `<String>` - SGF input
-- `options` `<Object>` *(optional)* - See [`sgf.parseTokens()`](#sgfparsetokenstokenscontents-options)
+- `options` `<Object>` *(optional)* - See [`sgf.parseTokens()`](#sgfparsetokenstokens-options)
 
 Returns an array of [node objects](#node-object).
 
@@ -99,8 +99,9 @@ Returns an array of [node objects](#node-object).
 - `buffer` [`<Buffer>`](https://nodejs.org/api/buffer.html) - The buffer
 - `options` `<Object>` *(optional)*
     - `encoding` `<String>` *(optional)* - See [`sgf.tokenizeBuffer()`](#sgftokenizebufferbuffer-options)
-    - `getId` `<Function>` *(optional)* - See [`sgf.parseTokens()`](#sgfparsetokenstokenscontents-options)
-    - `onProgress` `<Function>` *(optional)* - See [`sgf.parseTokens()`](#sgfparsetokenstokenscontents-options)
+    - `getId` `<Function>` *(optional)* - See [`sgf.parseTokens()`](#sgfparsetokenstokens-options)
+    - `dictionary` `<Object>` *(optional)* - See [`sgf.parseTokens()`](#sgfparsetokenstokens-options)
+    - `onProgress` `<Function>` *(optional)* - See [`sgf.parseTokens()`](#sgfparsetokenstokens-options)
 
 Returns an array of [node objects](#node-object).
 
