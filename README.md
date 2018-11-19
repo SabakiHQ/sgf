@@ -141,7 +141,7 @@ Turns an SGF point string into a vertex, an integer array of the form `[x, y]`. 
 
 #### `sgf.stringifyVertex(vertex)`
 
-- `vertex` `<integer[]>`
+- `vertex` `<Integer[]>`
 
 Turns a vertex into an SGF point string. Returns an empty string if vertex is invalid.
 
@@ -159,6 +159,6 @@ Parses an SGF date string into an array of date arrays, integer arrays of the fo
 
 #### `sgf.stringifyDates(dates)`
 
-- `dates` `<integer[][]>`
+- `dates` `<Integer[][]>`
 
 Turns an array of date arrays and returns an SGF date string.
