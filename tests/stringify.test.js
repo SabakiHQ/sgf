@@ -3,22 +3,22 @@ const {stringify} = require('..')
 
 let gametrees = [
     {
-        nodes: [
-            {B: ['aa'], SZ: ['19']},
-            {AB: ['cc', 'dd:ee']}
-        ],
-        subtrees: []
+        data: {B: ['aa'], SZ: ['19']},
+        children: [{
+            data: {AB: ['cc', 'dd:ee']},
+            children: []
+        }]
     },
     {
-        nodes: [{CP: ['Copyright']}],
-        subtrees: [
+        data: {CP: ['Copyright']},
+        children: [
             {
-                nodes: [{B: ['ab']}],
-                subtrees: []
+                data: {B: ['ab']},
+                children: []
             },
             {
-                nodes: [{W: ['ac']}],
-                subtrees: []
+                data: {W: ['ac']},
+                children: []
             }
         ]
     }
@@ -42,22 +42,11 @@ t.test('should respect line break option', t => {
     t.end()
 })
 
-t.test('avoid stringifying into tree with only child subtree', t => {
-    t.equal(
-        stringify([
-            {nodes: [{B: ['aa']}], subtrees: [{nodes: [{W: ['bb']}], subtrees: []}]}
-        ], {linebreak: ''}),
-        '(;B[aa];W[bb])'
-    )
-
-    t.end()
-})
-
 t.test('should ignore mixed case node properties', t => {
     t.equal(
         stringify({
-            nodes: [{B: ['ab'], board: 'should ignore'}],
-            subtrees: []
+            data: {B: ['ab'], board: 'should ignore'},
+            children: []
         }),
         ';B[ab]\n'
     )
