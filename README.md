@@ -15,7 +15,7 @@ $ npm install @sabaki/sgf
 ~~~js
 const sgf = require('@sabaki/sgf')
 
-let gametrees = sgf.parseFile('./game.sgf')
+let nodes = sgf.parseFile('./game.sgf')
 ~~~
 
 ## Contributors
@@ -24,37 +24,48 @@ A big thanks to [@apetresc](https://github.com/apetresc) and [@fohristiwhirl](ht
 
 ## API
 
-### Game Tree
+### Node Object
 
-A game tree is represented by a simple JavaScript object with the following properties:
+A tree *node* is represented by an object of the following form:
 
-* `id` `<integer>` - A unique id of the tree
-* `nodes` `<Object[]>`
-* `subtrees` [`<GameTree[]>`](#game-tree)
-* `current` `<integer>` | `<null>` - The index of the current active subtree, `null` if there are no subtrees
-* `parent` [`<GameTree>`](#game-tree) | `<null>` - A reference to the parent game tree
+~~~js
+{
+    id: <Primitive>,
+    data: {
+        [property]: <Array<String>>
+    },
+    parentId: <Primitive> | null,
+    children: <Array<NodeObject>>
+}
+~~~
 
-Each node is a simple object. Its keys correspond to node properties which matches their [SGF property](https://www.red-bean.com/sgf/proplist.html) equivalent. Each key has an array of strings as value.
+`data` contains node properties which matches their [SGF property](https://www.red-bean.com/sgf/proplist.html) equivalent.
 
 ### Basic Functions
 
 #### `sgf.tokenize(contents)`
 
-- `contents` `<string>` - SGF input
+- `contents` `<String>` - SGF input
 
-Returns an array of objects with the following properties:
+Returns an array of objects of the following form:
 
-- `type` `<string>` - One of `"newline"`, `"whitespace"`, `"parenthesis"`, `"semicolon"`, `"prop_ident"`, `"c_value_type"`
-- `value` `<string>`
-- `row` `<integer>` - Zero-based index of row where the token starts
-- `col` `<integer>` - Zero-based index of column where the token starts
-- `pos` `<integer>` - Index in `contents` where the token starts
+~~~js
+{
+    type: <String>,
+    value: <String>,
+    row: <Integer>,
+    col: <Integer>,
+    pos: <Integer>
+}
+~~~
+
+`type` is one of `"newline"`, `"whitespace"`, `"parenthesis"`, `"semicolon"`, `"prop_ident"`, `"c_value_type"`. `row` is the zero-based index of the row where the token starts, `col` the zero-based index of column where the token starts, and `pos` denotes the index in `contents` where the token starts.
 
 #### `sgf.tokenizeBuffer(buffer[, options])`
 
 - `buffer` [`<Buffer>`](https://nodejs.org/api/buffer.html) - SGF input
 - `options` `<Object>` *(optional)*
-    - `encoding` `<string>` *(optional)*
+    - `encoding` `<String>` *(optional)*
 
 Returns an array of tokens as in [`sgf.tokenize()`](#sgftokenizecontents). If `encoding` isn't set, we will automatically choose an encoding. Automatic encoding detection is only possible if peer dependencies are installed, otherwise UTF-8 will be used.
 
@@ -65,61 +76,61 @@ Returns an array of tokens as in [`sgf.tokenize()`](#sgftokenizecontents). If `e
     - `getId` `<Function>` *(optional)*
     - `onProgress` `<Function>` *(optional)*
 
-Returns an array of [game trees](#game-tree). `onProgress` will be called with an object with the following keys:
+Returns an array of [node objects](#node-object) which represent the root nodes of each game tree. `onProgress` will be called with an object with the following keys:
 
-- `progress` `<number>` - Between `0` and `1`
+- `progress` `<Number>` - Between `0` and `1`
 
 `getId` can be specified to control the id generation. It will be called without any arguments. By default, we will use consecutive integers starting at `0` as ids.
 
 #### `sgf.parse(contents[, options])`
 
-- `contents` `<string>` - SGF input
+- `contents` `<String>` - SGF input
 - `options` `<Object>` *(optional)* - See [`sgf.parseTokens()`](#sgfparsetokenstokenscontents-options)
 
-Returns an array of [game trees](#game-tree).
+Returns an array of [node objects](#node-object).
 
 #### `sgf.parseBuffer(buffer[, options])`
 
 - `buffer` [`<Buffer>`](https://nodejs.org/api/buffer.html) - The buffer
 - `options` `<Object>` *(optional)*
-    - `encoding` `<string>` *(optional)* - See [`sgf.tokenizeBuffer()`](#sgftokenizebufferbuffer-options)
+    - `encoding` `<String>` *(optional)* - See [`sgf.tokenizeBuffer()`](#sgftokenizebufferbuffer-options)
     - `getId` `<Function>` *(optional)* - See [`sgf.parseTokens()`](#sgfparsetokenstokenscontents-options)
     - `onProgress` `<Function>` *(optional)* - See [`sgf.parseTokens()`](#sgfparsetokenstokenscontents-options)
 
-Returns an array of [game trees](#game-tree).
+Returns an array of [node objects](#node-object).
 
 #### `sgf.parseFile(filename[, options])`
 
-- `filename` `<string>` - Path to an SGF file
+- `filename` `<String>` - Path to an SGF file
 - `options` `<Object>` *(optional)* - See [`sgf.parseBuffer()`](#sgfparsebufferbuffer-options)
 
-Returns an array of [game trees](#game-tree). Automatically detects encoding.
+Returns an array of [node objects](#node-object). Automatically detects encoding.
 
-#### `sgf.stringify(trees[, options])`
+#### `sgf.stringify(nodes[, options])`
 
-- `trees` [`<GameTree[]>`](#game-tree)
+- `nodes` [`<NodeObject[]>`](#node-object)
 - `options` `<Object>` *(optional)*
-    - `linebreak` `<string>` *(optional)* - Default: `"\n"`
+    - `linebreak` `<String>` *(optional)* - Default: `"\n"`
 
-Returns an SGF string representing `trees`.
+Returns an SGF string representing the root nodes `nodes`.
 
 ### Helper Functions
 
 #### `sgf.escapeString(input)`
 
-- `input` `<string>`
+- `input` `<String>`
 
 Escapes `\` and `]` characters and returns the new string.
 
 #### `sgf.unescapeString(input)`
 
-- `input` `<string>`
+- `input` `<String>`
 
 Resolves escaped characters and returns the new string.
 
 #### `sgf.parseVertex(input)`
 
-- `input` `<string>`
+- `input` `<String>`
 
 Turns an SGF point string into a vertex, an integer array of the form `[x, y]`. An invalid string will yield `[-1, -1]`.
 
@@ -131,13 +142,13 @@ Turns a vertex into an SGF point string. Returns an empty string if vertex is in
 
 #### `sgf.parseCompressedVertices(input)`
 
-- `input` `<string>`
+- `input` `<String>`
 
 Turns an SGF compressed point list into an array of vertices.
 
 #### `sgf.parseDates(input)`
 
-- `input` `<string>`
+- `input` `<String>`
 
 Parses an SGF date string into an array of date arrays, integer arrays of the form `[year, month, date]`.
 
