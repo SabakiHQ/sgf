@@ -5,24 +5,32 @@ const {unescapeString} = require('./helper')
 
 function _parseTokens(tokens, getId, onProgress, start = 0) {
     let i = start
-    let node, property, identifier
-    let tree = {id: getId(), nodes: [], subtrees: [], current: null, parent: null}
+    let node = {id: null, data: {}, children: []}
+    let property, identifier
 
     while (i < tokens.length) {
         let {type, value} = tokens[i]
 
         if (type === 'parenthesis' && value === '(') break
-        if (type === 'parenthesis' && value === ')') return {tree, end: i}
+        if (type === 'parenthesis' && value === ')') return {node, end: i}
 
         if (type === 'semicolon') {
-            node = {}
-            tree.nodes.push(node)
+            let lastNode = node
+
+            node = {
+                id: getId(),
+                data: {},
+                parentId: lastNode.id,
+                children: []
+            }
+
+            lastNode.children.push(node)
         } else if (type === 'prop_ident') {
             identifier = value.split('').filter(x => x.toUpperCase() === x).join('')
 
             if (identifier !== '') {
-                if (!(identifier in node)) node[identifier] = []
-                property = node[identifier]
+                if (!(identifier in node.data)) node.data[identifier] = []
+                property = node.data[identifier]
             }
         } else if (type === 'c_value_type') {
             property.push(unescapeString(value.slice(1, -1)))
@@ -37,14 +45,9 @@ function _parseTokens(tokens, getId, onProgress, start = 0) {
         let {type, value} = tokens[i]
 
         if (type === 'parenthesis' && value === '(') {
-            let {tree: subtree, end} = _parseTokens(tokens, getId, onProgress, i + 1)
+            let {node: child, end} = _parseTokens(tokens, getId, onProgress, i + 1)
 
-            if (subtree.nodes.length > 0) {
-                subtree.parent = tree
-                tree.current = 0
-                tree.subtrees.push(subtree)
-            }
-
+            if (child != null) node.children.push(child)
             i = end
         } else if (type === 'parenthesis' && value === ')') {
             onProgress({progress: i / tokens.length})
@@ -54,19 +57,17 @@ function _parseTokens(tokens, getId, onProgress, start = 0) {
         i++
     }
 
-    return {tree, end: i}
+    return {node, end: i}
 }
 
-exports.parseTokens = function(tokens, {getId, onProgress = () => {}} = {}) {
+exports.parseTokens = function(tokens, {getId = null, onProgress = () => {}} = {}) {
     if (getId == null) {
         let id = 0
         getId = () => id++
     }
 
-    let {tree} = _parseTokens(tokens, getId, onProgress)
-    tree.subtrees.forEach(subtree => subtree.parent = null)
-
-    return tree.subtrees
+    let {node} = _parseTokens(tokens, getId, onProgress)
+    return node.children
 }
 
 exports.parse = function(contents, options = {}) {

@@ -1,39 +1,37 @@
 const {escapeString} = require('./helper')
 
-exports.stringify = function(tree, {linebreak = '\n', level = 0} = {}) {
-    if (Array.isArray(tree)) {
-        return exports.stringify({nodes: [], subtrees: tree}, {linebreak})
+exports.stringify = function(node, {linebreak = '\n', level = 0} = {}) {
+    if (Array.isArray(node)) {
+        return exports.stringify({data: {}, children: node}, {linebreak, level})
     }
 
     let output = []
     let indent = linebreak !== '' ? '  '.repeat(level) : ''
 
-    for (let node of tree.nodes) {
-        output.push(indent, ';')
+    output.push(indent, ';')
 
-        for (let id in node) {
-            if (id.toUpperCase() !== id) continue
+    for (let id in node.data) {
+        if (id.toUpperCase() !== id) continue
 
-            output.push(id, '[', node[id].map(escapeString).join(']['), ']')
-        }
-
-        output.push(linebreak)
+        output.push(id, '[', node.data[id].map(escapeString).join(']['), ']')
     }
 
-    if (tree.subtrees.length > 1 || tree.subtrees.length > 0 && level === 0) {
-        if (tree.subtrees.length > 0) output.push(indent)
+    output.push(linebreak)
 
-        for (let subtree of tree.subtrees) {
+    if (node.children.length > 1 || level === 0) {
+        if (node.children.length > 0) output.push(indent)
+
+        for (let child of node.children) {
             output.push(
                 '(', linebreak,
-                exports.stringify(subtree, {linebreak, level: level + 1}),
+                exports.stringify(child, {linebreak, level: level + 1}),
                 indent, ')'
             )
         }
 
         output.push(linebreak)
-    } else if (tree.subtrees.length === 1) {
-        output.push(exports.stringify(tree.subtrees[0], {linebreak, level}))
+    } else if (node.children.length === 1) {
+        output.push(exports.stringify(node.children[0], {linebreak, level}))
     }
 
     return output.join('')
