@@ -2,10 +2,10 @@ const t = require('tap')
 const sgf = require('..')
 
 function getJSON(tree) {
-    JSON.parse(JSON.stringify(tree, (key, value) => {
-        if (key == 'id' || key == 'parent') {
+    return JSON.parse(JSON.stringify(tree, (key, value) => {
+        if (key === 'id' || key === 'parentId') {
             return undefined
-        } else if (key == 'subtrees') {
+        } else if (key == 'children') {
             return value.map(getJSON)
         }
 
@@ -14,14 +14,14 @@ function getJSON(tree) {
 }
 
 t.test('should parse multiple nodes', t => {
-    t.equal(
+    t.deepEqual(
         getJSON(sgf.parse('(;B[aa]SZ[19];AB[cc][dd:ee])')[0]),
         getJSON({
-            nodes: [
-                {B: ['aa'], SZ: ['19']},
-                {AB: ['cc', 'dd:ee']}
-            ],
-            subtrees: []
+            data: {B: ['aa'], SZ: ['19']},
+            children: [{
+                data: {AB: ['cc', 'dd:ee']},
+                children: []
+            }]
         })
     )
 
@@ -29,13 +29,11 @@ t.test('should parse multiple nodes', t => {
 })
 
 t.test('should not omit CA property', t => {
-    t.equal(
+    t.deepEqual(
         getJSON(sgf.parse('(;B[aa]CA[UTF-8])', {encoding: 'ISO-8859-1'})[0]),
         getJSON({
-            nodes: [
-                {B: ['aa'], CA: ['UTF-8']},
-            ],
-            subtrees: []
+            data: {B: ['aa'], CA: ['UTF-8']},
+            children: []
         })
     )
 
@@ -43,18 +41,18 @@ t.test('should not omit CA property', t => {
 })
 
 t.test('should parse variations', t => {
-    t.equal(
+    t.deepEqual(
         getJSON(sgf.parse('(;B[hh](;W[ii])(;W[hi]C[h]))')[0]),
         getJSON({
-            nodes: [{B: ['hh']}],
-            subtrees: [
+            data: {B: ['hh']},
+            children: [
                 {
-                    nodes: [{W: ['ii']}],
-                    subtrees: []
+                    data: {W: ['ii']},
+                    children: []
                 },
                 {
-                    nodes: [{W: ['hi'], C: ['h']}],
-                    subtrees: []
+                    data: {W: ['hi'], C: ['h']},
+                    children: []
                 }
             ]
         })
@@ -64,18 +62,18 @@ t.test('should parse variations', t => {
 })
 
 t.test('should convert lower case properties', t => {
-    t.equal(
+    t.deepEqual(
         getJSON(sgf.parse('(;CoPyright[hello](;White[ii])(;White[hi]Comment[h]))')[0]),
         getJSON({
-            nodes: [{CP: ['hello']}],
-            subtrees: [
+            data: {CP: ['hello']},
+            children: [
                 {
-                    nodes: [{W: ['ii']}],
-                    subtrees: []
+                    data: {W: ['ii']},
+                    children: []
                 },
                 {
-                    nodes: [{W: ['hi'], C: ['h']}],
-                    subtrees: []
+                    data: {W: ['hi'], C: ['h']},
+                    children: []
                 }
             ]
         })
@@ -91,19 +89,19 @@ t.test('should parse a relatively complex file', t => {
     t.end()
 })
 
-t.test('should ignore empty subtrees', t => {
-    t.equal(
+t.test('should ignore empty variations', t => {
+    t.deepEqual(
         getJSON(sgf.parse('(;B[hh]()(;W[ii])()(;W[hi]C[h]))')[0]),
         getJSON({
-            nodes: [{B: ['hh']}],
-            subtrees: [
+            data: {B: ['hh']},
+            children: [
                 {
-                    nodes: [{W: ['ii']}],
-                    subtrees: []
+                    data: {W: ['ii']},
+                    children: []
                 },
                 {
-                    nodes: [{W: ['hi'], C: ['h']}],
-                    subtrees: []
+                    data: {W: ['hi'], C: ['h']},
+                    children: []
                 }
             ]
         })
@@ -118,10 +116,10 @@ let languageMap = {
     'korean': '바둑'
 }
 
-for (language in languageMap) {
+for (let language in languageMap) {
     t.test('should be able to decode non-UTF-8 text nodes', t => {
         t.equal(
-            sgf.parseFile(`${__dirname}/${language}.sgf`)[0].nodes[2].C[0],
+            sgf.parseFile(`${__dirname}/${language}.sgf`)[0].children[0].children[0].data.C[0],
             `${languageMap[language]} is fun`
         )
 
@@ -131,12 +129,12 @@ for (language in languageMap) {
 
 t.test('should be able to go back and re-parse attributes set before CA', t => {
     t.equal(
-        sgf.parseFile(__dirname + '/chinese.sgf')[0].nodes[0].PW[0],
+        sgf.parseFile(__dirname + '/chinese.sgf')[0].data.PW[0],
         '柯洁'
     )
 
     t.equal(
-        sgf.parseFile(__dirname + '/chinese.sgf')[0].nodes[0].PB[0],
+        sgf.parseFile(__dirname + '/chinese.sgf')[0].data.PB[0],
         '古力'
     )
 
@@ -145,7 +143,7 @@ t.test('should be able to go back and re-parse attributes set before CA', t => {
 
 t.test('should ignore unknown encodings', t => {
     t.notEqual(
-        sgf.parseFile(__dirname + '/japanese_bad.sgf')[0].nodes[2].C[0],
+        sgf.parseFile(__dirname + '/japanese_bad.sgf')[0].children[0].children[0].data.C[0],
         `${languageMap['japanese']} is fun`
     )
 

@@ -5,14 +5,14 @@ const {unescapeString} = require('./helper')
 
 function _parseTokens(tokens, getId, onProgress, start = 0) {
     let i = start
-    let node = {id: null, data: {}, children: []}
-    let property, identifier
+    let anchor = null
+    let node, property, identifier
 
     while (i < tokens.length) {
         let {type, value} = tokens[i]
 
         if (type === 'parenthesis' && value === '(') break
-        if (type === 'parenthesis' && value === ')') return {node, end: i}
+        if (type === 'parenthesis' && value === ')') return {node: anchor, end: i}
 
         if (type === 'semicolon') {
             let lastNode = node
@@ -20,11 +20,15 @@ function _parseTokens(tokens, getId, onProgress, start = 0) {
             node = {
                 id: getId(),
                 data: {},
-                parentId: lastNode.id,
+                parentId: lastNode == null ? null : lastNode.id,
                 children: []
             }
 
-            lastNode.children.push(node)
+            if (lastNode != null) {
+                lastNode.children.push(node)
+            } else {
+                anchor = node
+            }
         } else if (type === 'prop_ident') {
             identifier = value.split('').filter(x => x.toUpperCase() === x).join('')
 
@@ -41,13 +45,26 @@ function _parseTokens(tokens, getId, onProgress, start = 0) {
         i++
     }
 
+    if (node == null) {
+        anchor = node = {
+            id: null,
+            data: {},
+            parentId: null,
+            children: []
+        }
+    }
+
     while (i < tokens.length) {
         let {type, value} = tokens[i]
 
         if (type === 'parenthesis' && value === '(') {
             let {node: child, end} = _parseTokens(tokens, getId, onProgress, i + 1)
 
-            if (child != null) node.children.push(child)
+            if (child != null) {
+                child.parentId = node.id
+                node.children.push(child)
+            }
+
             i = end
         } else if (type === 'parenthesis' && value === ')') {
             onProgress({progress: i / tokens.length})
@@ -57,7 +74,7 @@ function _parseTokens(tokens, getId, onProgress, start = 0) {
         i++
     }
 
-    return {node, end: i}
+    return {node: anchor, end: i}
 }
 
 exports.parseTokens = function(tokens, {getId = null, onProgress = () => {}} = {}) {
@@ -67,6 +84,7 @@ exports.parseTokens = function(tokens, {getId = null, onProgress = () => {}} = {
     }
 
     let {node} = _parseTokens(tokens, getId, onProgress)
+
     return node.children
 }
 
