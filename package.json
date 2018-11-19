@@ -4,7 +4,7 @@
   "description": "A library for parsing SGF files.",
   "main": "./src/main.js",
   "scripts": {
-    "test": "npm i iconv-lite@~0.4 jschardet@^1.0 --no-save && tap tests/*.test.js"
+    "test": "tap tests/*.test.js"
   },
   "repository": {
     "type": "git",
@@ -26,6 +26,8 @@
   },
   "homepage": "https://github.com/SabakiHQ/sgf",
   "devDependencies": {
+    "iconv-lite": "^0.4.24",
+    "jschardet": "^1.0.2",
     "tap": "^11.1.4"
   },
   "peerDependencies": {
