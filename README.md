@@ -74,13 +74,18 @@ Returns an array of tokens as in [`sgf.tokenize()`](#sgftokenizecontents). If `e
 - `tokens` - List of tokens as returned by [`sgf.tokenize()`](#sgftokenizecontents)
 - `options` `<Object>` *(optional)*
     - `getId` `<Function>` *(optional)*
+    - `dictionary` `<Object>` *(optional)*
     - `onProgress` `<Function>` *(optional)*
 
-Returns an array of [node objects](#node-object) which represent the root nodes of each game tree. `onProgress` will be called with an object with the following keys:
-
-- `progress` `<Number>` - Between `0` and `1`
+Returns an array of [node objects](#node-object) which represent the root nodes of each game tree.
 
 `getId` can be specified to control the id generation. It will be called without any arguments. By default, we will use consecutive integers starting at `0` as ids.
+
+Pass an object to `dictionary` and it will get filled with references to all the nodes with their ids as keys.
+
+`onProgress` will be called with an object with the following keys:
+
+- `progress` `<Number>` - Between `0` and `1`
 
 #### `sgf.parse(contents[, options])`
 

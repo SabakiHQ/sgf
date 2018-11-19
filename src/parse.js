@@ -3,7 +3,7 @@ const fs = require('fs')
 const {tokenize, tokenizeBuffer} = require('./tokenize')
 const {unescapeString} = require('./helper')
 
-function _parseTokens(tokens, getId, onProgress, start = 0) {
+function _parseTokens(tokens, getId, dictionary, onProgress, start = 0) {
     let i = start
     let anchor = null
     let node, property, identifier
@@ -24,11 +24,10 @@ function _parseTokens(tokens, getId, onProgress, start = 0) {
                 children: []
             }
 
-            if (lastNode != null) {
-                lastNode.children.push(node)
-            } else {
-                anchor = node
-            }
+            if (dictionary != null) dictionary[node.id] = node
+
+            if (lastNode != null) lastNode.children.push(node)
+            else anchor = node
         } else if (type === 'prop_ident') {
             identifier = value.split('').filter(x => x.toUpperCase() === x).join('')
 
@@ -58,7 +57,7 @@ function _parseTokens(tokens, getId, onProgress, start = 0) {
         let {type, value} = tokens[i]
 
         if (type === 'parenthesis' && value === '(') {
-            let {node: child, end} = _parseTokens(tokens, getId, onProgress, i + 1)
+            let {node: child, end} = _parseTokens(tokens, getId, dictionary, onProgress, i + 1)
 
             if (child != null) {
                 child.parentId = node.id
@@ -77,13 +76,17 @@ function _parseTokens(tokens, getId, onProgress, start = 0) {
     return {node: anchor, end: i}
 }
 
-exports.parseTokens = function(tokens, {getId = null, onProgress = () => {}} = {}) {
+exports.parseTokens = function(tokens, {
+    getId = null,
+    dictionary = null,
+    onProgress = () => {}
+} = {}) {
     if (getId == null) {
         let id = 0
         getId = () => id++
     }
 
-    let {node} = _parseTokens(tokens, getId, onProgress)
+    let {node} = _parseTokens(tokens, getId, dictionary, onProgress)
 
     return node.children
 }
