@@ -15,7 +15,7 @@ $ npm install @sabaki/sgf
 ~~~js
 const sgf = require('@sabaki/sgf')
 
-let nodes = sgf.parseFile('./game.sgf')
+let rootNodes = sgf.parseFile('./game.sgf')
 ~~~
 
 ## Contributors
@@ -40,6 +40,8 @@ A tree *node* is represented by an object of the following form:
 ~~~
 
 `data` contains node properties which matches their [SGF property](https://www.red-bean.com/sgf/proplist.html) equivalent.
+
+---
 
 ### Basic Functions
 
@@ -119,6 +121,8 @@ Returns an array of [node objects](#node-object). Automatically detects encoding
     - `linebreak` `<String>` *(optional)* - Default: `"\n"`
 
 Returns an SGF string representing the root nodes `nodes`.
+
+---
 
 ### Helper Functions
 
