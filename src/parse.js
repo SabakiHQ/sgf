@@ -86,7 +86,7 @@ exports.parseTokens = function(tokens, {
         getId = () => id++
     }
 
-    let {node} = _parseTokens(tokens, getId, dictionary, onProgress)
+    let {node} = _parseTokens([...tokens], getId, dictionary, onProgress)
 
     return node.children
 }

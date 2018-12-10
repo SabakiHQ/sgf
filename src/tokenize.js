@@ -2,8 +2,8 @@ const iconv = require('./iconv-lite')
 const jschardet = require('./jschardet')
 const {unescapeString} = require('./helper')
 
-exports.tokenize = function(contents) {
-    let tokens = []
+exports.tokenize = function*(contents) {
+    let length = contents.length
     let pos = 0
     let [row, col] = [0, 0]
     let rules = {
@@ -25,7 +25,14 @@ exports.tokenize = function(contents) {
             let value = match[0]
 
             if (!['newline', 'whitespace'].includes(type)) {
-                tokens.push({type, value, row, col, pos})
+                yield {
+                    type,
+                    value,
+                    row,
+                    col,
+                    pos,
+                    progress: pos / (length - 1)
+                }
             }
 
             // Update source position
@@ -43,15 +50,16 @@ exports.tokenize = function(contents) {
             break
         }
 
-        if (match == null) throw new Error(`Unexpected SGF token at ${row + 1}:${col + 1}`)
+        if (match == null) {
+            throw new Error(`Unexpected SGF token at ${row + 1}:${col + 1}`)
+        }
     }
-
-    return tokens
 }
 
-exports.tokenizeBuffer = function(buffer, {encoding = null} = {}) {
+exports.tokenizeBuffer = function*(buffer, {encoding = null} = {}) {
     if (encoding != null) {
-        return exports.tokenize(iconv.decode(buffer, encoding))
+        yield* exports.tokenize(iconv.decode(buffer, encoding))
+        return
     }
 
     // Guess encoding
@@ -62,25 +70,37 @@ exports.tokenizeBuffer = function(buffer, {encoding = null} = {}) {
 
     // Search for encoding
 
+    let prelude = []
+    let secondSemicolon = false
     let givenEncoding = detectedEncoding
 
-    for (let i = 0; i < Math.min(tokens.length, 100); i++) {
-        let {type, value} = tokens[i]
+    while (true) {
+        let next = tokens.next()
+        if (next.done) break
 
-        if (
-            type === 'prop_ident'
-            && value === 'CA'
-            && tokens[i + 1]
-            && tokens[i + 1].type === 'c_value_type'
+        let {type, value} = next.value
+        let i = prelude.length
+
+        prelude.push(next.value)
+
+        if (type === 'semicolon') {
+            if (!secondSemicolon) secondSemicolon = true
+            else break
+        } else if (
+            type === 'c_value_type'
+            && i > 0
+            && prelude[i - 1].type === 'prop_ident'
+            && prelude[i - 1].value === 'CA'
         ) {
-            givenEncoding = unescapeString(tokens[i + 1].value.slice(1, -1))
+            givenEncoding = unescapeString(value.slice(1, -1))
             break
         }
     }
 
     if (detectedEncoding !== givenEncoding && iconv.encodingExists(givenEncoding)) {
-        tokens = exports.tokenize(iconv.decode(buffer, givenEncoding))
+        yield* exports.tokenize(iconv.decode(buffer, givenEncoding))
+    } else {
+        yield* prelude
+        yield* tokens
     }
-
-    return tokens
 }
