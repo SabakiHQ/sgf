@@ -24,6 +24,15 @@ let gametrees = [
     }
 ]
 
+t.test('should stringify single game tree with parenthesis', t => {
+    t.equal(
+        stringify(gametrees.slice(0, 1)),
+        '(\n  ;B[aa]SZ[19]\n  ;AB[cc][dd:ee]\n)\n'
+    )
+
+    t.end()
+})
+
 t.test('should stringify multiple game trees with correct indentation', t => {
     t.equal(
         stringify(gametrees),

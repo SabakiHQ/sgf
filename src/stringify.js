@@ -20,8 +20,8 @@ exports.stringify = function(node, {linebreak = '\n', level = 0} = {}) {
         output.push(linebreak)
     }
 
-    if (node.children.length > 1) {
-        if (node.children.length > 0) output.push(indent)
+    if (node.children.length > 1 || node.children.length > 0 && level === 0) {
+        output.push(indent)
 
         for (let child of node.children) {
             output.push(
