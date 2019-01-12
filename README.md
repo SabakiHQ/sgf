@@ -45,11 +45,11 @@ A tree *node* is represented by an object of the following form:
 
 ### Basic Functions
 
-#### `sgf.tokenize(contents)`
+#### `*sgf.tokenizeIter(contents)`
 
 - `contents` `<String>` - SGF input
 
-Returns an array of objects of the following form:
+A generator function that yields SGF tokens, objects of the following form:
 
 ~~~js
 {
@@ -57,19 +57,28 @@ Returns an array of objects of the following form:
     value: <String>,
     row: <Integer>,
     col: <Integer>,
-    pos: <Integer>
+    pos: <Integer>,
+    progress: <Number>
 }
 ~~~
 
-`type` is one of `"newline"`, `"whitespace"`, `"parenthesis"`, `"semicolon"`, `"prop_ident"`, `"c_value_type"`. `row` is the zero-based index of the row where the token starts, `col` the zero-based index of column where the token starts, and `pos` denotes the index in `contents` where the token starts.
+`type` is one of `"parenthesis"`, `"semicolon"`, `"prop_ident"`, `"c_value_type"`. `row` is the zero-based index of the row where the token starts, `col` the zero-based index of column where the token starts, and `pos` denotes the index in `contents` where the token starts. `progress` is a number between `0` and `1` denoting the procental position of the token.
 
-#### `sgf.tokenizeBuffer(buffer[, options])`
+#### `sgf.tokenize(contents)`
+
+The same as [`sgf.tokenizeIter`](#sgftokenizeitercontents), except this function will return an array.
+
+#### `*sgf.tokenizeBufferIter(buffer[, options])`
 
 - `buffer` [`<Buffer>`](https://nodejs.org/api/buffer.html) - SGF input
 - `options` `<Object>` *(optional)*
     - `encoding` `<String>` *(optional)*
 
-Returns an array of tokens as in [`sgf.tokenize()`](#sgftokenizecontents). If `encoding` isn't set, we will automatically choose an encoding. Automatic encoding detection is only possible if peer dependencies are installed, otherwise UTF-8 will be used.
+A generator function that yields SGF tokens as in [`sgf.tokenizeIter()`](#sgftokenizeitercontents). If `encoding` isn't set, we will automatically choose an encoding. Automatic encoding detection is only possible if peer dependencies are installed, otherwise UTF-8 will be used.
+
+#### `sgf.tokenizeBuffer(buffer[, options])`
+
+The same as [`sgf.tokenizeBufferIter`](#sgftokenizebufferiterbuffer-options), except this function will return an array.
 
 #### `sgf.parseTokens(tokens[, options])`
 
