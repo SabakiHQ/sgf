@@ -51,7 +51,7 @@ exports.tokenizeIter = function*(contents) {
         }
 
         if (match == null) {
-            throw new Error(`Unexpected SGF token at ${row + 1}:${col + 1}`)
+            throw new Error(`Unexpected token at ${row + 1}:${col + 1}`)
         }
     }
 }

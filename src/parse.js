@@ -6,7 +6,7 @@ const {unescapeString} = require('./helper')
 
 function _parseTokens(peekableTokens, getId, dictionary, onProgress) {
     let anchor = null
-    let node, property, identifier
+    let node, property
 
     while (!peekableTokens.peek().done) {
         let {type, value, row, col} = peekableTokens.peek().value
@@ -29,17 +29,23 @@ function _parseTokens(peekableTokens, getId, dictionary, onProgress) {
             if (lastNode != null) lastNode.children.push(node)
             else anchor = node
         } else if (type === 'prop_ident') {
-            identifier = value === value.toUpperCase() ? value
-                : value.split('').filter(x => x.toUpperCase() === x).join('')
+            if (node != null) {
+                let identifier = value === value.toUpperCase() ? value
+                    : value.split('').filter(x => x.toUpperCase() === x).join('')
 
-            if (identifier !== '') {
-                if (!(identifier in node.data)) node.data[identifier] = []
-                property = node.data[identifier]
+                if (identifier !== '') {
+                    if (!(identifier in node.data)) node.data[identifier] = []
+                    property = node.data[identifier]
+                } else {
+                    property = null
+                }
             }
         } else if (type === 'c_value_type') {
-            property.push(unescapeString(value.slice(1, -1)))
+            if (property != null) {
+                property.push(unescapeString(value.slice(1, -1)))
+            }
         } else {
-            throw new Error(`Unexpected SGF token type '${type}' at ${row + 1}:${col + 1}`)
+            throw new Error(`Unexpected token type '${type}' at ${row + 1}:${col + 1}`)
         }
 
         peekableTokens.next()
