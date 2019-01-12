@@ -29,7 +29,8 @@ function _parseTokens(peekableTokens, getId, dictionary, onProgress) {
             if (lastNode != null) lastNode.children.push(node)
             else anchor = node
         } else if (type === 'prop_ident') {
-            identifier = value.split('').filter(x => x.toUpperCase() === x).join('')
+            identifier = value === value.toUpperCase() ? value
+                : value.split('').filter(x => x.toUpperCase() === x).join('')
 
             if (identifier !== '') {
                 if (!(identifier in node.data)) node.data[identifier] = []
