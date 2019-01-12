@@ -2,7 +2,7 @@ const iconv = require('./iconv-lite')
 const jschardet = require('./jschardet')
 const {unescapeString} = require('./helper')
 
-exports.tokenize = function*(contents) {
+exports.tokenizeIter = function*(contents) {
     let length = contents.length
     let pos = 0
     let [row, col] = [0, 0]
@@ -56,9 +56,9 @@ exports.tokenize = function*(contents) {
     }
 }
 
-exports.tokenizeBuffer = function*(buffer, {encoding = null} = {}) {
+exports.tokenizeBufferIter = function*(buffer, {encoding = null} = {}) {
     if (encoding != null) {
-        yield* exports.tokenize(iconv.decode(buffer, encoding))
+        yield* exports.tokenizeIter(iconv.decode(buffer, encoding))
         return
     }
 
@@ -66,7 +66,7 @@ exports.tokenizeBuffer = function*(buffer, {encoding = null} = {}) {
 
     let detectedEncoding = jschardet.detect(buffer.slice(0, 100)).encoding
     let contents = iconv.decode(buffer, detectedEncoding)
-    let tokens = exports.tokenize(contents)
+    let tokens = exports.tokenizeIter(contents)
 
     // Search for encoding
 
@@ -98,9 +98,12 @@ exports.tokenizeBuffer = function*(buffer, {encoding = null} = {}) {
     }
 
     if (detectedEncoding !== givenEncoding && iconv.encodingExists(givenEncoding)) {
-        yield* exports.tokenize(iconv.decode(buffer, givenEncoding))
+        yield* exports.tokenizeIter(iconv.decode(buffer, givenEncoding))
     } else {
         yield* prelude
         yield* tokens
     }
 }
+
+exports.tokenize = contents => [...exports.tokenizeIter(contents)]
+exports.tokenizeBuffer = (buffer, opts) => [...exports.tokenizeBufferIter(buffer, opts)]

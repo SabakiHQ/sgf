@@ -1,7 +1,7 @@
 const fs = require('fs')
 
 const Peekable = require('./peekable')
-const {tokenize, tokenizeBuffer} = require('./tokenize')
+const {tokenizeIter, tokenizeBufferIter} = require('./tokenize')
 const {unescapeString} = require('./helper')
 
 function _parseTokens(peekableTokens, getId, dictionary, onProgress) {
@@ -92,11 +92,11 @@ exports.parseTokens = function(tokens, {
 }
 
 exports.parse = function(contents, options = {}) {
-    return exports.parseTokens(tokenize(contents), options)
+    return exports.parseTokens(tokenizeIter(contents), options)
 }
 
 exports.parseBuffer = function(buffer, options = {}) {
-    return exports.parseTokens(tokenizeBuffer(buffer, {encoding: options.encoding}), options)
+    return exports.parseTokens(tokenizeBufferIter(buffer, {encoding: options.encoding}), options)
 }
 
 exports.parseFile = function(filename, options = {}) {
