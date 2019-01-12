@@ -1,6 +1,6 @@
 class Peekable {
     constructor(iterator) {
-        this.iterator = iterator
+        this.iterator = iterator[Symbol.iterator]()
         this.peeked = null
     }
 
