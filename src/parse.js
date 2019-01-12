@@ -9,7 +9,7 @@ function _parseTokens(peekableTokens, getId, dictionary, onProgress) {
     let node, property, identifier
 
     while (!peekableTokens.peek().done) {
-        let {type, value} = peekableTokens.peek().value
+        let {type, value, row, col} = peekableTokens.peek().value
 
         if (type === 'parenthesis' && value === '(') break
         if (type === 'parenthesis' && value === ')') return anchor
@@ -39,7 +39,7 @@ function _parseTokens(peekableTokens, getId, dictionary, onProgress) {
         } else if (type === 'c_value_type') {
             property.push(unescapeString(value.slice(1, -1)))
         } else {
-            throw new Error(`Unexpected SGF token type '${type}'`)
+            throw new Error(`Unexpected SGF token type '${type}' at ${row + 1}:${col + 1}`)
         }
 
         peekableTokens.next()
