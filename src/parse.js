@@ -1,18 +1,18 @@
 const fs = require('fs')
 
+const Peekable = require('./peekable')
 const {tokenize, tokenizeBuffer} = require('./tokenize')
 const {unescapeString} = require('./helper')
 
-function _parseTokens(tokens, getId, dictionary, onProgress, start = 0) {
-    let i = start
+function _parseTokens(peekableTokens, getId, dictionary, onProgress) {
     let anchor = null
     let node, property, identifier
 
-    while (i < tokens.length) {
-        let {type, value} = tokens[i]
+    while (!peekableTokens.peek().done) {
+        let {type, value} = peekableTokens.peek().value
 
         if (type === 'parenthesis' && value === '(') break
-        if (type === 'parenthesis' && value === ')') return {node: anchor, end: i}
+        if (type === 'parenthesis' && value === ')') return anchor
 
         if (type === 'semicolon') {
             let lastNode = node
@@ -41,7 +41,7 @@ function _parseTokens(tokens, getId, dictionary, onProgress, start = 0) {
             throw new Error(`Unexpected SGF token type '${type}'`)
         }
 
-        i++
+        peekableTokens.next()
     }
 
     if (node == null) {
@@ -53,27 +53,27 @@ function _parseTokens(tokens, getId, dictionary, onProgress, start = 0) {
         }
     }
 
-    while (i < tokens.length) {
-        let {type, value} = tokens[i]
+    while (!peekableTokens.peek().done) {
+        let {type, value, progress} = peekableTokens.peek().value
 
         if (type === 'parenthesis' && value === '(') {
-            let {node: child, end} = _parseTokens(tokens, getId, dictionary, onProgress, i + 1)
+            peekableTokens.next()
+
+            let child = _parseTokens(peekableTokens, getId, dictionary, onProgress)
 
             if (child != null) {
                 child.parentId = node.id
                 node.children.push(child)
             }
-
-            i = end
         } else if (type === 'parenthesis' && value === ')') {
-            onProgress({progress: i / tokens.length})
+            onProgress({progress})
             break
         }
 
-        i++
+        peekableTokens.next()
     }
 
-    return {node: anchor, end: i}
+    return anchor
 }
 
 exports.parseTokens = function(tokens, {
@@ -86,8 +86,7 @@ exports.parseTokens = function(tokens, {
         getId = () => id++
     }
 
-    let {node} = _parseTokens([...tokens], getId, dictionary, onProgress)
-
+    let node = _parseTokens(new Peekable(tokens), getId, dictionary, onProgress)
     return node.children
 }
 
