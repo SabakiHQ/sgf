@@ -4,7 +4,14 @@ const Peekable = require('./peekable')
 const {tokenizeIter, tokenizeBufferIter} = require('./tokenize')
 const {unescapeString} = require('./helper')
 
-function _parseTokens(peekableTokens, getId, dictionary, onProgress) {
+function _parseTokens(peekableTokens, parentId, options) {
+    let {
+        getId,
+        dictionary,
+        onProgress,
+        onNodeCreated
+    } = options
+
     let anchor = null
     let node, property
 
@@ -12,7 +19,10 @@ function _parseTokens(peekableTokens, getId, dictionary, onProgress) {
         let {type, value, row, col} = peekableTokens.peek().value
 
         if (type === 'parenthesis' && value === '(') break
-        if (type === 'parenthesis' && value === ')') return anchor
+        if (type === 'parenthesis' && value === ')') {
+            if (node != null) onNodeCreated({node})
+            return anchor
+        }
 
         if (type === 'semicolon') {
             let lastNode = node
@@ -20,14 +30,18 @@ function _parseTokens(peekableTokens, getId, dictionary, onProgress) {
             node = {
                 id: getId(),
                 data: {},
-                parentId: lastNode == null ? null : lastNode.id,
+                parentId: lastNode == null ? parentId : lastNode.id,
                 children: []
             }
 
             if (dictionary != null) dictionary[node.id] = node
 
-            if (lastNode != null) lastNode.children.push(node)
-            else anchor = node
+            if (lastNode != null) {
+                onNodeCreated({node: lastNode})
+                lastNode.children.push(node)
+            } else {
+                anchor = node
+            }
         } else if (type === 'prop_ident') {
             if (node != null) {
                 let identifier = value === value.toUpperCase() ? value
@@ -58,6 +72,8 @@ function _parseTokens(peekableTokens, getId, dictionary, onProgress) {
             parentId: null,
             children: []
         }
+    } else {
+        onNodeCreated({node})
     }
 
     while (!peekableTokens.peek().done) {
@@ -66,10 +82,9 @@ function _parseTokens(peekableTokens, getId, dictionary, onProgress) {
         if (type === 'parenthesis' && value === '(') {
             peekableTokens.next()
 
-            let child = _parseTokens(peekableTokens, getId, dictionary, onProgress)
+            let child = _parseTokens(peekableTokens, node.id, options)
 
             if (child != null) {
-                child.parentId = node.id
                 node.children.push(child)
             }
         } else if (type === 'parenthesis' && value === ')') {
@@ -86,14 +101,21 @@ function _parseTokens(peekableTokens, getId, dictionary, onProgress) {
 exports.parseTokens = function(tokens, {
     getId = null,
     dictionary = null,
-    onProgress = () => {}
+    onProgress = () => {},
+    onNodeCreated = () => {}
 } = {}) {
     if (getId == null) {
         let id = 0
         getId = () => id++
     }
 
-    let node = _parseTokens(new Peekable(tokens), getId, dictionary, onProgress)
+    let node = _parseTokens(new Peekable(tokens), null, {
+        getId,
+        dictionary,
+        onProgress,
+        onNodeCreated
+    })
+
     return node.children
 }
 

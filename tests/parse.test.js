@@ -61,6 +61,45 @@ t.test('should parse variations', t => {
     t.end()
 })
 
+t.test('should emit onNodeCompleted correctly', t => {
+    let nodes = []
+
+    sgf.parse('(;B[hh](;W[ii])(;W[hi];C[h]))', {
+        onNodeCreated({node}) {
+            nodes.push(JSON.parse(JSON.stringify(node)))
+        }
+    })
+
+    t.deepEqual(nodes, [
+        {
+            "children": [],
+            "data": {"B": ["hh"]},
+            "id": 0,
+            "parentId": null
+        },
+        {
+            "children": [],
+            "data": {"W": ["ii"]},
+            "id": 1,
+            "parentId": 0
+        },
+        {
+            "children": [],
+            "data": {"W": ["hi"]},
+            "id": 2,
+            "parentId": 0
+        },
+        {
+            "children": [],
+            "data": {"C": ["h"]},
+            "id": 3,
+            "parentId": 2
+        }
+    ])
+
+    t.end()
+})
+
 t.test('should convert lower case properties', t => {
     t.deepEqual(
         getJSON(sgf.parse('(;CoPyright[hello](;White[ii])(;White[hi]Comment[h]))')[0]),
