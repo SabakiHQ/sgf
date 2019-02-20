@@ -101,7 +101,7 @@ Pass an object to `dictionary` and it will get filled with references to all the
 
 `onNodeCompleted` will be called when property parsing has been completed for a node. It will be called with an object with the following keys:
 
-- `node` [`<Node>`](#node-object)
+- `node` [`<NodeObject>`](#node-object)
 
 #### `sgf.parse(contents[, options])`
 
