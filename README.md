@@ -62,7 +62,7 @@ A generator function that yields SGF tokens, objects of the following form:
 }
 ~~~
 
-`type` is one of `"parenthesis"`, `"semicolon"`, `"prop_ident"`, `"c_value_type"`. `row` is the zero-based index of the row where the token starts, `col` the zero-based index of column where the token starts, and `pos` denotes the index in `contents` where the token starts. `progress` is a number between `0` and `1` denoting the procental position of the token.
+`type` is one of `"parenthesis"`, `"semicolon"`, `"prop_ident"`, `"c_value_type"`. `row` is the zero-based index of the row where the token starts, `col` the zero-based index of column where the token starts, and `pos` denotes the index in `contents` where the token starts. `progress` is a number between `0` and `1` denoting the percental position of the token.
 
 #### `sgf.tokenize(contents)`
 
