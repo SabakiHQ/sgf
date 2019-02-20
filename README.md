@@ -87,6 +87,7 @@ The same as [`sgf.tokenizeBufferIter`](#sgftokenizebufferiterbuffer-options), ex
     - `getId` `<Function>` *(optional)*
     - `dictionary` `<Object>` *(optional)*
     - `onProgress` `<Function>` *(optional)*
+    - `onNodeCompleted` `<Function>` *(optional)*
 
 Returns an array of [node objects](#node-object) which represent the root nodes of each game tree.
 
@@ -97,6 +98,10 @@ Pass an object to `dictionary` and it will get filled with references to all the
 `onProgress` will be called with an object with the following keys:
 
 - `progress` `<Number>` - Between `0` and `1`
+
+`onNodeCompleted` will be called when property parsing has been completed for a node. It will be called with an object with the following keys:
+
+- `node` [`<Node>`](#node-object)
 
 #### `sgf.parse(contents[, options])`
 
