@@ -99,16 +99,11 @@ function _parseTokens(peekableTokens, parentId, options) {
 }
 
 exports.parseTokens = function(tokens, {
-    getId = null,
+    getId = ((id = 0) => () => id++)(),
     dictionary = null,
     onProgress = () => {},
     onNodeCreated = () => {}
 } = {}) {
-    if (getId == null) {
-        let id = 0
-        getId = () => id++
-    }
-
     let node = _parseTokens(new Peekable(tokens), null, {
         getId,
         dictionary,
