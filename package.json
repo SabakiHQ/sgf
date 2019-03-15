@@ -1,6 +1,6 @@
 {
   "name": "@sabaki/sgf",
-  "version": "3.2.0",
+  "version": "3.1.0",
   "description": "A library for parsing SGF files.",
   "main": "./src/main.js",
   "scripts": {
@@ -32,7 +32,7 @@
   },
   "peerDependencies": {
     "iconv-lite": "0.4.x",
-    "jschardet": "1.x"
+    "jschardet": ">=1.0 <3"
   },
   "dependencies": {}
 }
