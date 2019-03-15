@@ -27,8 +27,8 @@
   "homepage": "https://github.com/SabakiHQ/sgf",
   "devDependencies": {
     "iconv-lite": "^0.4.24",
-    "jschardet": "^1.0.2",
-    "tap": "^11.1.4"
+    "jschardet": "^2.1.0",
+    "tap": "^12.6.0"
   },
   "peerDependencies": {
     "iconv-lite": "0.4.x",
