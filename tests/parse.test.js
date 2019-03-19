@@ -61,7 +61,7 @@ t.test('should parse variations', t => {
     t.end()
 })
 
-t.test('should emit onNodeCompleted correctly', t => {
+t.test('should emit onNodeCreated correctly', t => {
     let nodes = []
 
     sgf.parse('(;B[hh](;W[ii])(;W[hi];C[h]))', {
