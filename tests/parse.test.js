@@ -128,6 +128,23 @@ t.test('should parse a relatively complex file', t => {
     t.end()
 })
 
+t.test('should be able to parse nodes outside a game', t => {
+    let trees = sgf.parse(';B[hh];W[ii]')
+
+    t.deepEqual(
+        getJSON(trees[0]),
+        getJSON({
+            data: {B: ['hh']},
+            children: [{
+                data: {W: ['ii']},
+                children: []
+            }]
+        })
+    )
+
+    t.end()
+})
+
 t.test('should ignore empty variations', t => {
     t.deepEqual(
         getJSON(sgf.parse('(;B[hh]()(;W[ii])()(;W[hi]C[h]))')[0]),

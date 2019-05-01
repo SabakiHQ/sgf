@@ -111,7 +111,7 @@ exports.parseTokens = function(tokens, {
         onNodeCreated
     })
 
-    return node.children
+    return node.id == null ? node.children : [node]
 }
 
 exports.parse = function(contents, options = {}) {
