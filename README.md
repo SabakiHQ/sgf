@@ -133,6 +133,7 @@ Returns an array of [node objects](#node-object). Automatically detects encoding
 - `nodes` [`<NodeObject[]>`](#node-object)
 - `options` `<Object>` *(optional)*
     - `linebreak` `<String>` *(optional)* - Default: `"\n"`
+    - `indent` `<String>` *(optional)* - Default: `"  "`
 
 Returns an SGF string representing the root nodes `nodes`.
 
