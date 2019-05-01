@@ -24,7 +24,9 @@ function _parseTokens(peekableTokens, parentId, options) {
             return anchor
         }
 
-        if (type === 'semicolon') {
+        if (type === 'semicolon' || node == null) {
+            // Prepare new node
+
             let lastNode = node
 
             node = {
@@ -42,8 +44,14 @@ function _parseTokens(peekableTokens, parentId, options) {
             } else {
                 anchor = node
             }
+        }
+
+        if (type === 'semicolon') {
+            // Work is already done
         } else if (type === 'prop_ident') {
             if (node != null) {
+                // Prepare new property
+
                 let identifier = value === value.toUpperCase() ? value
                     : value.split('').filter(x => x.toUpperCase() === x).join('')
 
@@ -99,7 +107,7 @@ function _parseTokens(peekableTokens, parentId, options) {
 }
 
 exports.parseTokens = function(tokens, {
-    getId = ((id = 0) => () => id++)(),
+    getId = (id => () => id++)(0),
     dictionary = null,
     onProgress = () => {},
     onNodeCreated = () => {}

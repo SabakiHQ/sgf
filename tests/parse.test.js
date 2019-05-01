@@ -129,19 +129,20 @@ t.test('should parse a relatively complex file', t => {
 })
 
 t.test('should be able to parse nodes outside a game', t => {
-    let trees = sgf.parse(';B[hh];W[ii]')
+    let trees1 = sgf.parse(';B[hh];W[ii]')
+    let trees2 = sgf.parse('(;B[hh];W[ii])')
 
-    t.deepEqual(
-        getJSON(trees[0]),
-        getJSON({
-            data: {B: ['hh']},
-            children: [{
-                data: {W: ['ii']},
-                children: []
-            }]
-        })
-    )
+    t.deepEqual(trees1, trees2)
+    t.end()
+})
 
+t.test('should be able to correctly parse a game that misses initial ;', t => {
+    let trees1 = sgf.parse('B[hh];W[ii]')
+    let trees2 = sgf.parse('(B[hh];W[ii])')
+    let trees3 = sgf.parse('(;B[hh];W[ii])')
+
+    t.deepEqual(trees1, trees3)
+    t.deepEqual(trees2, trees3)
     t.end()
 })
 
