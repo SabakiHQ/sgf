@@ -18,6 +18,28 @@ const sgf = require('@sabaki/sgf')
 let rootNodes = sgf.parseFile('./game.sgf')
 ~~~
 
+`rootNodes` looks like this:
+
+~~~js
+[
+    {
+        id: 1,
+        data: {B: ['dd'], ...},
+        parentId: null,
+        children: [
+            {
+                id: 2,
+                data: {W: ['dq']},
+                parentId: 1,
+                children: []
+            },
+            ...
+        ]
+    },
+    ...
+]
+~~~
+
 ## Contributors
 
 A big thanks to [@apetresc](https://github.com/apetresc) and [@fohristiwhirl](https://github.com/fohristiwhirl) for adding decoding and automatic encoding detection functionalities.
