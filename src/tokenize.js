@@ -7,8 +7,7 @@ exports.tokenizeIter = function*(contents) {
     let pos = 0
     let [row, col] = [0, 0]
     let rules = {
-        newline: /^\n/,
-        whitespace: /^[^\S\n]+/,
+        whitespace: /^\s+/,
         parenthesis: /^(\(|\))/,
         semicolon: /^;/,
         prop_ident: /^[A-Za-z]+/,
@@ -24,7 +23,7 @@ exports.tokenizeIter = function*(contents) {
 
             let value = match[0]
 
-            if (!['newline', 'whitespace'].includes(type)) {
+            if (type !== 'whitespace') {
                 yield {
                     type,
                     value,
@@ -37,11 +36,15 @@ exports.tokenizeIter = function*(contents) {
 
             // Update source position
 
-            if (type === 'newline') {
-                row++
-                col = 0
+            let newlineIndices = Array.from(value)
+                .map((c, i) => c === '\n' ? i : null)
+                .filter(x => x != null);
+
+            row += newlineIndices.length;
+            if (newlineIndices.length > 0) {
+                col = value.length - newlineIndices.slice(-1)[0] - 1;
             } else {
-                col += value.length
+                col += value.length;
             }
 
             pos += value.length

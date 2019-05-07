@@ -71,3 +71,18 @@ t.test('should allow lower case properties', t => {
 
     t.end()
 })
+
+t.test('should take new lines inside token values into account', t => {
+    let contents = '(;C[bl\nah])'
+    let len = contents.length - 1
+
+    t.deepEqual(tokenize(contents), [
+        {type: 'parenthesis', value: '(', row: 0, col: 0, pos: 0, progress: 0 / len},
+        {type: 'semicolon', value: ';', row: 0, col: 1, pos: 1, progress: 1 / len},
+        {type: 'prop_ident', value: 'C', row: 0, col: 2, pos: 2, progress: 2 / len},
+        {type: 'c_value_type', value: '[bl\nah]', row: 0, col: 3, pos: 3, progress: 3 / len},
+        {type: 'parenthesis', value: ')', row: 1, col: 3, pos: 10, progress: 10 / len}
+    ])
+
+    t.end()
+})
