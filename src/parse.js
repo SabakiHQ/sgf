@@ -66,6 +66,8 @@ function _parseTokens(peekableTokens, parentId, options) {
             if (property != null) {
                 property.push(unescapeString(value.slice(1, -1)))
             }
+        } else if (type === 'invalid') {
+            throw new Error(`Unexpected token at ${row + 1}:${col + 1}`)
         } else {
             throw new Error(`Unexpected token type '${type}' at ${row + 1}:${col + 1}`)
         }
