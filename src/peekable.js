@@ -1,20 +1,26 @@
 class Peekable {
     constructor(iterator) {
         this.iterator = iterator[Symbol.iterator]()
-        this.peeked = null
+        this.peekedItem = null
+        this.peeked = false
     }
 
     next() {
-        let next = this.peeked != null ? this.peeked : this.iterator.next()
-        this.peeked = null
+        let next = this.peeked ? this.peekedItem : this.iterator.next()
+
+        this.peekedItem = null
+        this.peeked = false
 
         return next
     }
 
     peek() {
-        if (this.peeked == null) this.peeked = this.iterator.next()
+        if (!this.peeked) {
+            this.peekedItem = this.iterator.next()
+            this.peeked = true
+        }
 
-        return this.peeked
+        return this.peekedItem
     }
 }
 
