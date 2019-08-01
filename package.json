@@ -30,7 +30,7 @@
     "jschardet": "^2.1.0",
     "tap": "^14.2.2"
   },
-  "peerDependencies": {
+  "optionalDependencies": {
     "iconv-lite": "0.4.x",
     "jschardet": ">=1.0 <3"
   },

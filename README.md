@@ -130,7 +130,7 @@ The same as [`sgf.tokenizeIter`](#sgftokenizeitercontents), except this function
 - `options` `<Object>` *(optional)*
     - `encoding` `<String>` *(optional)*
 
-A generator function that yields SGF tokens as in [`sgf.tokenizeIter()`](#sgftokenizeitercontents). If `encoding` isn't set, we will automatically choose an encoding. Automatic encoding detection is only possible if peer dependencies are installed, otherwise UTF-8 will be used.
+A generator function that yields SGF tokens as in [`sgf.tokenizeIter()`](#sgftokenizeitercontents). If `encoding` isn't set, we will automatically choose an encoding. Automatic encoding detection is only possible if optional dependencies are installed, otherwise UTF-8 will be used.
 
 #### `sgf.tokenizeBuffer(buffer[, options])`
 
