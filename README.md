@@ -40,6 +40,40 @@ let rootNodes = sgf.parseFile('./game.sgf')
 ]
 ~~~
 
+### Use in the browser
+
+You can use this library in the browser by using a bundler, such as webpack. If you do, you need to add the following lines to your webpack configuration:
+
+~~~js
+{
+    ...
+    externals: {
+        'fs': 'null',
+
+        // Add the next lines to disable automatic encoding detection
+        // and reduce bundle size:
+        'jschardet': 'null',
+        'iconv-lite': 'null'
+    }
+}
+~~~
+
+Note that [`parseFile`](#sgfparsefilefilename-options) is not available in the browser; you have to use [`parse`](#sgfparsecontents-options) instead.
+
+### Integration with [@sabaki/immutable-gametree](https://github.com/SabakiHQ/immutable-gametree)
+
+This library uses the same node structure as [@sabaki/immutable-gametree](https://github.com/SabakiHQ/immutable-gametree) and is fully compatible with it. To wrap parsed SGF into game trees, you can write, for example, something like this:
+
+~~~js
+const sgf = require('@sabaki/sgf')
+const GameTree = require('@sabaki/immutable-gametree')
+
+let rootNodes = sgf.parse(content)
+let gameTrees = rootNodes.map(rootNode => {
+    return new GameTree({root: rootNode})
+})
+~~~
+
 ## Contributors
 
 A big thanks to [@apetresc](https://github.com/apetresc) and [@fohristiwhirl](https://github.com/fohristiwhirl) for adding decoding and automatic encoding detection functionalities.
