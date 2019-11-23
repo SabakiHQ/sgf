@@ -28,7 +28,7 @@
   "devDependencies": {
     "iconv-lite": "^0.4.24",
     "jschardet": "^2.1.0",
-    "tap": "^14.2.2"
+    "tap": "^14.10.1"
   },
   "optionalDependencies": {
     "iconv-lite": "0.4.x",
