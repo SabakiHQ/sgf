@@ -18,7 +18,7 @@ exports.tokenizeIter = function*(contents) {
         let value = null
 
         for (let type in rules) {
-            match = rules[type].exec(contents)
+            let match = rules[type].exec(contents)
             if (match == null) continue
 
             value = match[0]
