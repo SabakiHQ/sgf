@@ -1,71 +1,28 @@
+const {createTokenizer, regexRule} = require('doken')
 const iconv = require('./iconv-lite')
 const jschardet = require('./jschardet')
 const {unescapeString} = require('./helper')
 
-const rules = {
-  whitespace: /^\s+/,
-  parenthesis: /^(\(|\))/,
-  semicolon: /^;/,
-  prop_ident: /^[A-Za-z]+/,
-  c_value_type: /^\[([^\\\]]|\\[^])*\]/
-}
+const tokenizeInner = createTokenizer({
+  rules: [
+    regexRule('_whitespace', /\s+/y, {lineBreaks: true}),
+    regexRule('parenthesis', /(\(|\))/y),
+    regexRule('semicolon', /;/y),
+    regexRule('prop_ident', /[A-Za-z]+/y),
+    regexRule('c_value_type', /\[([^\\\]]|\\[^])*\]/y, {lineBreaks: true})
+  ]
+})
 
 exports.tokenizeIter = function*(contents) {
   let length = contents.length
-  let [row, col, pos] = [0, 0, 0]
 
-  while (contents.length > 0) {
-    let value = null
+  for (let token of tokenizeInner(contents)) {
+    token.progress = token.pos / (length - 1)
+    delete token.length
 
-    for (let type in rules) {
-      let match = rules[type].exec(contents)
-      if (match == null) continue
+    if (token.type == null) token.type = 'invalid'
 
-      value = match[0]
-
-      if (type !== 'whitespace') {
-        yield {
-          type,
-          value,
-          row,
-          col,
-          pos,
-          progress: pos / (length - 1)
-        }
-      }
-
-      break
-    }
-
-    if (value == null) {
-      value = contents[0]
-
-      yield {
-        type: 'invalid',
-        value,
-        row,
-        col,
-        pos,
-        progress: pos / (length - 1)
-      }
-    }
-
-    // Update source position
-
-    let newlineIndices = Array.from(value)
-      .map((c, i) => (c === '\n' ? i : null))
-      .filter(x => x != null)
-
-    row += newlineIndices.length
-
-    if (newlineIndices.length > 0) {
-      col = value.length - newlineIndices.slice(-1)[0] - 1
-    } else {
-      col += value.length
-    }
-
-    pos += value.length
-    contents = contents.slice(value.length)
+    yield token
   }
 }
 

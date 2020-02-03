@@ -27,7 +27,9 @@
     "url": "https://github.com/SabakiHQ/sgf/issues"
   },
   "homepage": "https://github.com/SabakiHQ/sgf",
-  "dependencies": {},
+  "dependencies": {
+    "doken": "^1.0.0"
+  },
   "devDependencies": {
     "iconv-lite": "^0.4.24",
     "jschardet": "^2.1.0",
