@@ -129,7 +129,7 @@ t.test('should convert lower case properties', t => {
 })
 
 t.test('should parse a relatively complex file', t => {
-  let trees = sgf.parseFile(path.resolve(__dirname, 'complex.sgf'))
+  let trees = sgf.parseFile(path.resolve(__dirname, 'sgf/complex.sgf'))
 
   t.equal(trees.length, 1)
   t.end()
@@ -183,8 +183,8 @@ let languageMap = {
 for (let language in languageMap) {
   t.test('should be able to decode non-UTF-8 text nodes', t => {
     t.equal(
-      sgf.parseFile(path.resolve(__dirname, `${language}.sgf`))[0].children[0]
-        .children[0].data.C[0],
+      sgf.parseFile(path.resolve(__dirname, `sgf/${language}.sgf`))[0]
+        .children[0].children[0].data.C[0],
       `${languageMap[language]} is fun`
     )
 
@@ -193,7 +193,7 @@ for (let language in languageMap) {
 }
 
 t.test('should be able to go back and re-parse attributes set before CA', t => {
-  let gameTrees = sgf.parseFile(path.resolve(__dirname, 'chinese.sgf'))
+  let gameTrees = sgf.parseFile(path.resolve(__dirname, 'sgf/chinese.sgf'))
 
   t.equal(gameTrees[0].data.PW[0], '柯洁')
   t.equal(gameTrees[0].data.PB[0], '古力')
@@ -202,8 +202,8 @@ t.test('should be able to go back and re-parse attributes set before CA', t => {
 
 t.test('should ignore unknown encodings', t => {
   t.notEqual(
-    sgf.parseFile(path.resolve(__dirname, 'japanese_bad.sgf'))[0].children[0]
-      .children[0].data.C[0],
+    sgf.parseFile(path.resolve(__dirname, 'sgf/japanese_bad.sgf'))[0]
+      .children[0].children[0].data.C[0],
     `${languageMap['japanese']} is fun`
   )
 
@@ -212,7 +212,7 @@ t.test('should ignore unknown encodings', t => {
 
 t.test('should ignore BOM markers', t => {
   t.doesNotThrow(() => {
-    sgf.parseFile(path.resolve(__dirname, 'utf8bom.sgf'))
+    sgf.parseFile(path.resolve(__dirname, 'sgf/utf8bom.sgf'))
   })
 
   t.end()
@@ -220,7 +220,7 @@ t.test('should ignore BOM markers', t => {
 
 t.test('should parse a UTF-16 LE file correctly', t => {
   t.doesNotThrow(() => {
-    sgf.parseFile(path.resolve(__dirname, 'utf16le.sgf'))
+    sgf.parseFile(path.resolve(__dirname, 'sgf/utf16le.sgf'))
   })
 
   t.end()
@@ -229,7 +229,7 @@ t.test('should parse a UTF-16 LE file correctly', t => {
 t.test('should detect encoding automatically', t => {
   t.ok(
     sgf
-      .parseFile(path.resolve(__dirname, 'no-ca.sgf'))[0]
+      .parseFile(path.resolve(__dirname, 'sgf/no-ca.sgf'))[0]
       .data.C[0].startsWith('【第三型】')
   )
 
