@@ -1,109 +1,109 @@
 const alpha = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 exports.escapeString = function(input) {
-    return input.toString()
-        .replace(/\\/g, '\\\\')
-        .replace(/\]/g, '\\]')
+  return input
+    .toString()
+    .replace(/\\/g, '\\\\')
+    .replace(/\]/g, '\\]')
 }
 
 exports.unescapeString = function(input) {
-    let result = []
-    let inBackslash = false
+  let result = []
+  let inBackslash = false
 
-    input = input.replace(/\r/g, '')
+  input = input.replace(/\r/g, '')
 
-    for (let i = 0; i < input.length; i++) {
-        if (!inBackslash) {
-            if (input[i] !== '\\')
-                result.push(input[i])
-            else if (input[i] === '\\')
-                inBackslash = true
-        } else {
-            if (input[i] !== '\n')
-                result.push(input[i])
+  for (let i = 0; i < input.length; i++) {
+    if (!inBackslash) {
+      if (input[i] !== '\\') result.push(input[i])
+      else if (input[i] === '\\') inBackslash = true
+    } else {
+      if (input[i] !== '\n') result.push(input[i])
 
-            inBackslash = false
-        }
+      inBackslash = false
     }
+  }
 
-    return result.join('')
+  return result.join('')
 }
 
 exports.parseDates = function(input) {
-    if (!input.match(/^(\d{4}(-\d{1,2}(-\d{1,2})?)?(\s*,\s*(\d{4}|(\d{4}-)?\d{1,2}(-\d{1,2})?))*)?$/))
-        return null
-    if (input.trim() === '')
-        return []
+  if (
+    !input.match(
+      /^(\d{4}(-\d{1,2}(-\d{1,2})?)?(\s*,\s*(\d{4}|(\d{4}-)?\d{1,2}(-\d{1,2})?))*)?$/
+    )
+  )
+    return null
+  if (input.trim() === '') return []
 
-    let dates = input.split(',').map(x => x.trim().split('-'))
+  let dates = input.split(',').map(x => x.trim().split('-'))
 
-    for (let i = 1; i < dates.length; i++) {
-        let date = dates[i]
-        let prev = dates[i - 1]
+  for (let i = 1; i < dates.length; i++) {
+    let date = dates[i]
+    let prev = dates[i - 1]
 
-        if (date[0].length !== 4) {
-            // No year
+    if (date[0].length !== 4) {
+      // No year
 
-            if (date.length === 1 && prev.length === 3) {
-                // Add month
-                date.unshift(prev[1])
-            }
+      if (date.length === 1 && prev.length === 3) {
+        // Add month
+        date.unshift(prev[1])
+      }
 
-            // Add year
-            date.unshift(prev[0])
-        }
+      // Add year
+      date.unshift(prev[0])
     }
+  }
 
-    return dates.map(x => x.map(y => +y))
+  return dates.map(x => x.map(y => +y))
 }
 
 exports.stringifyDates = function(dates) {
-    if (dates.length === 0) return ''
+  if (dates.length === 0) return ''
 
-    let datesCopy = [dates[0].slice()]
+  let datesCopy = [dates[0].slice()]
 
-    for (let i = 1; i < dates.length; i++) {
-        let date = dates[i]
-        let prev = dates[i - 1]
-        let k = 0
+  for (let i = 1; i < dates.length; i++) {
+    let date = dates[i]
+    let prev = dates[i - 1]
+    let k = 0
 
-        for (let j = 0; j < date.length; j++) {
-            if (date[j] === prev[j] && k === j) k++
-            else break
-        }
-
-        datesCopy.push(date.slice(k))
+    for (let j = 0; j < date.length; j++) {
+      if (date[j] === prev[j] && k === j) k++
+      else break
     }
 
-    return datesCopy.map(x =>
-        x.map(y => y > 9 ? '' + y : '0' + y).join('-')
-    ).join(',')
+    datesCopy.push(date.slice(k))
+  }
+
+  return datesCopy
+    .map(x => x.map(y => (y > 9 ? '' + y : '0' + y)).join('-'))
+    .join(',')
 }
 
 exports.parseVertex = function(input) {
-    if (input.length !== 2) return [-1, -1]
-    return input.split('').map(x => alpha.indexOf(x))
+  if (input.length !== 2) return [-1, -1]
+  return input.split('').map(x => alpha.indexOf(x))
 }
 
 exports.stringifyVertex = function([x, y]) {
-    if (Math.min(x, y) < 0 || Math.max(x, y) >= alpha.length)
-        return ''
-    return alpha[x] + alpha[y]
+  if (Math.min(x, y) < 0 || Math.max(x, y) >= alpha.length) return ''
+  return alpha[x] + alpha[y]
 }
 
 exports.parseCompressedVertices = function(input) {
-    let colon = input.indexOf(':')
-    if (colon < 0) return [exports.parseVertex(input)]
+  let colon = input.indexOf(':')
+  if (colon < 0) return [exports.parseVertex(input)]
 
-    let v1 = exports.parseVertex(input.slice(0, colon))
-    let v2 = exports.parseVertex(input.slice(colon + 1))
-    let vertices = []
+  let v1 = exports.parseVertex(input.slice(0, colon))
+  let v2 = exports.parseVertex(input.slice(colon + 1))
+  let vertices = []
 
-    for (let i = Math.min(v1[0], v2[0]); i <= Math.max(v1[0], v2[0]); i++) {
-        for (let j = Math.min(v1[1], v2[1]); j <= Math.max(v1[1], v2[1]); j++) {
-            vertices.push([i, j])
-        }
+  for (let i = Math.min(v1[0], v2[0]); i <= Math.max(v1[0], v2[0]); i++) {
+    for (let j = Math.min(v1[1], v2[1]); j <= Math.max(v1[1], v2[1]); j++) {
+      vertices.push([i, j])
     }
+  }
 
-    return vertices
+  return vertices
 }

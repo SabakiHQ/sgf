@@ -4,7 +4,9 @@
   "description": "A library for parsing SGF files.",
   "main": "./src/main.js",
   "scripts": {
-    "test": "tap tests/*.test.js"
+    "test": "tap tests/*.test.js",
+    "format": "prettier \"**/*.{js,md}\" --write",
+    "format-watch": "onchange \"**/*.{js,md}\" -- prettier --write {{changed}}"
   },
   "repository": {
     "type": "git",
@@ -25,14 +27,22 @@
     "url": "https://github.com/SabakiHQ/sgf/issues"
   },
   "homepage": "https://github.com/SabakiHQ/sgf",
+  "dependencies": {},
   "devDependencies": {
     "iconv-lite": "^0.4.24",
     "jschardet": "^2.1.0",
-    "tap": "^14.10.1"
+    "onchange": "^6.1.0",
+    "prettier": "1.19.1",
+    "tap": "^14.10.6"
   },
   "optionalDependencies": {
     "iconv-lite": "0.4.x",
     "jschardet": ">=1.0 <3"
   },
-  "dependencies": {}
+  "prettier": {
+    "semi": false,
+    "singleQuote": true,
+    "bracketSpacing": false,
+    "proseWrap": "always"
+  }
 }
