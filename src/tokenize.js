@@ -3,7 +3,19 @@ const iconv = require('./iconv-lite')
 const jschardet = require('./jschardet')
 const {unescapeString} = require('./helper')
 
-const tokenizeInner = createTokenizer({
+const encodingDetectionProps = [
+  'EV',
+  'GN',
+  'GC',
+  'AN',
+  'BT',
+  'WT',
+  'PW',
+  'PB',
+  'C'
+]
+
+const _tokenize = createTokenizer({
   rules: [
     regexRule('_whitespace', /\s+/y, {lineBreaks: true}),
     regexRule('parenthesis', /(\(|\))/y),
@@ -16,7 +28,7 @@ const tokenizeInner = createTokenizer({
 exports.tokenizeIter = function*(contents) {
   let length = contents.length
 
-  for (let token of tokenizeInner(contents)) {
+  for (let token of _tokenize(contents)) {
     token.progress = token.pos / (length - 1)
     delete token.length
 
@@ -34,44 +46,54 @@ exports.tokenizeBufferIter = function*(buffer, {encoding = null} = {}) {
 
   // Guess encoding
 
-  let detectedEncoding = jschardet.detect(buffer.slice(0, 100)).encoding
+  let detectedEncoding = jschardet.detect(buffer).encoding
   let contents = iconv.decode(buffer, detectedEncoding)
   let tokens = exports.tokenizeIter(contents)
 
   // Search for encoding
 
   let prelude = []
-  let secondSemicolon = false
-  let givenEncoding = detectedEncoding
+  let testBuffers = []
 
   while (true) {
     let next = tokens.next()
     if (next.done) break
 
     let {type, value} = next.value
-    let i = prelude.length
+    let lastToken = prelude[prelude.length - 1]
 
     prelude.push(next.value)
 
-    if (type === 'semicolon') {
-      if (!secondSemicolon) secondSemicolon = true
-      else break
+    if (
+      type === 'c_value_type' &&
+      lastToken != null &&
+      lastToken.type === 'prop_ident' &&
+      lastToken.value === 'CA'
+    ) {
+      encoding = unescapeString(value.slice(1, -1))
+      break
     } else if (
       type === 'c_value_type' &&
-      i > 0 &&
-      prelude[i - 1].type === 'prop_ident' &&
-      prelude[i - 1].value === 'CA'
+      lastToken != null &&
+      lastToken.type === 'prop_ident' &&
+      encodingDetectionProps.includes(lastToken.value)
     ) {
-      givenEncoding = unescapeString(value.slice(1, -1))
-      break
+      testBuffers.push(iconv.encode(value.slice(1, -1), detectedEncoding))
+
+      if (testBuffers.reduce((sum, buf) => sum + buf.length, 0) > 100) break
     }
   }
 
+  if (encoding == null && testBuffers.length > 0) {
+    encoding = jschardet.detectBuffers(testBuffers).encoding
+  }
+
   if (
-    detectedEncoding !== givenEncoding &&
-    iconv.encodingExists(givenEncoding)
+    encoding != null &&
+    encoding != detectedEncoding &&
+    iconv.encodingExists(encoding)
   ) {
-    yield* exports.tokenizeIter(iconv.decode(buffer, givenEncoding))
+    yield* exports.tokenizeIter(iconv.decode(buffer, encoding))
   } else {
     yield* prelude
     yield* tokens
@@ -79,6 +101,7 @@ exports.tokenizeBufferIter = function*(buffer, {encoding = null} = {}) {
 }
 
 exports.tokenize = contents => [...exports.tokenizeIter(contents)]
+
 exports.tokenizeBuffer = (buffer, opts) => [
   ...exports.tokenizeBufferIter(buffer, opts)
 ]

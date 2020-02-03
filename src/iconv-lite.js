@@ -7,7 +7,8 @@ module.exports = (() => {
   } catch (err) {
     return {
       encodingExists: () => true,
-      decode: buffer => buffer.toString()
+      decode: buffer => buffer.toString(),
+      encode: (str, _) => str
     }
   }
 })()
