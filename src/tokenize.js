@@ -21,7 +21,11 @@ const _tokenize = createTokenizer({
     regexRule('parenthesis', /(\(|\))/y),
     regexRule('semicolon', /;/y),
     regexRule('prop_ident', /[A-Za-z]+/y),
-    regexRule('c_value_type', /\[([^\\\]]|\\[^])*\]/y, {lineBreaks: true})
+    regexRule('c_value_type', /\[([^\\\]]|\\[^])*\]/y, {lineBreaks: true}),
+    {
+      type: 'invalid',
+      match: (input, position) => ({length: 1})
+    }
   ]
 })
 
@@ -31,8 +35,6 @@ exports.tokenizeIter = function*(contents) {
   for (let token of _tokenize(contents)) {
     token.progress = token.pos / (length - 1)
     delete token.length
-
-    if (token.type == null) token.type = 'invalid'
 
     yield token
   }

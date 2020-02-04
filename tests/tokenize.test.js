@@ -303,3 +303,69 @@ t.test('should take new lines inside token values into account', t => {
 
   t.end()
 })
+
+t.test('should return invalid tokens', t => {
+  let contents = '(;C[hi]%[invalid])'
+  let len = contents.length - 1
+
+  t.deepEqual(tokenize(contents), [
+    {
+      type: 'parenthesis',
+      value: '(',
+      row: 0,
+      col: 0,
+      pos: 0,
+      progress: 0 / len
+    },
+    {
+      type: 'semicolon',
+      value: ';',
+      row: 0,
+      col: 1,
+      pos: 1,
+      progress: 1 / len
+    },
+    {
+      type: 'prop_ident',
+      value: 'C',
+      row: 0,
+      col: 2,
+      pos: 2,
+      progress: 2 / len
+    },
+    {
+      type: 'c_value_type',
+      value: '[hi]',
+      row: 0,
+      col: 3,
+      pos: 3,
+      progress: 3 / len
+    },
+    {
+      type: 'invalid',
+      value: '%',
+      row: 0,
+      col: 7,
+      pos: 7,
+      progress: 7 / len
+    },
+    {
+      type: 'c_value_type',
+      value: '[invalid]',
+      row: 0,
+      col: 8,
+      pos: 8,
+      progress: 8 / len
+    },
+    {
+      type: 'parenthesis',
+      value: ')',
+      row: 0,
+      col: 17,
+      pos: 17,
+      progress: 17 / len
+    }
+  ])
+
+  t.end()
+})
