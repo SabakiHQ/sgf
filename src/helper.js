@@ -34,6 +34,7 @@ exports.parseDates = function(input) {
     )
   )
     return null
+
   if (input.trim() === '') return []
 
   let dates = input.split(',').map(x => x.trim().split('-'))
@@ -95,12 +96,12 @@ exports.parseCompressedVertices = function(input) {
   let colon = input.indexOf(':')
   if (colon < 0) return [exports.parseVertex(input)]
 
-  let v1 = exports.parseVertex(input.slice(0, colon))
-  let v2 = exports.parseVertex(input.slice(colon + 1))
+  let [x1, y1] = exports.parseVertex(input.slice(0, colon))
+  let [x2, y2] = exports.parseVertex(input.slice(colon + 1))
   let vertices = []
 
-  for (let i = Math.min(v1[0], v2[0]); i <= Math.max(v1[0], v2[0]); i++) {
-    for (let j = Math.min(v1[1], v2[1]); j <= Math.max(v1[1], v2[1]); j++) {
+  for (let i = Math.min(x1, x2); i <= Math.max(x1, x2); i++) {
+    for (let j = Math.min(y1, y2); j <= Math.max(y1, y2); j++) {
       vertices.push([i, j])
     }
   }

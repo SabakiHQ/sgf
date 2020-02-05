@@ -30,10 +30,8 @@ const _tokenize = createTokenizer({
 })
 
 exports.tokenizeIter = function*(contents) {
-  let length = contents.length
-
   for (let token of _tokenize(contents)) {
-    token.progress = token.pos / (length - 1)
+    token.progress = token.pos / (contents.length - 1)
     delete token.length
 
     yield token
