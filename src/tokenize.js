@@ -46,7 +46,7 @@ exports.tokenizeBufferIter = function*(buffer, {encoding = null} = {}) {
 
   // Guess encoding
 
-  let detectedEncoding = jschardet.detect(buffer).encoding
+  let detectedEncoding = jschardet.detect(buffer.slice(0, 100)).encoding
   let contents = iconv.decode(buffer, detectedEncoding)
   let tokens = exports.tokenizeIter(contents)
 
