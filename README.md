@@ -22,21 +22,21 @@ let rootNodes = sgf.parseFile('./game.sgf')
 
 ```js
 [
-    {
-        id: 1,
-        data: {B: ['dd'], ...},
-        parentId: null,
-        children: [
-            {
-                id: 2,
-                data: {W: ['dq']},
-                parentId: 1,
-                children: []
-            },
-            ...
-        ]
-    },
-    ...
+  {
+    id: 1,
+    data: {B: ['dd'], ...},
+    parentId: null,
+    children: [
+      {
+        id: 2,
+        data: {W: ['dq']},
+        parentId: 1,
+        children: []
+      },
+      ...
+    ]
+  },
+  ...
 ]
 ```
 
@@ -47,15 +47,15 @@ you do, you need to add the following lines to your webpack configuration:
 
 ```js
 {
-    ...
-    externals: {
-        'fs': 'null',
+  ...
+  externals: {
+    'fs': 'null',
 
-        // Add the next lines to disable automatic encoding detection
-        // and reduce bundle size:
-        'jschardet': 'null',
-        'iconv-lite': 'null'
-    }
+    // Add the next lines to disable automatic encoding detection
+    // and reduce bundle size:
+    'jschardet': 'null',
+    'iconv-lite': 'null'
+  }
 }
 ```
 
@@ -73,11 +73,15 @@ for example, something like this:
 const sgf = require('@sabaki/sgf')
 const GameTree = require('@sabaki/immutable-gametree')
 
-let rootNodes = sgf.parse(content)
+let getId = (id => () => id++)(0)
+let rootNodes = sgf.parse(content, {getId})
 let gameTrees = rootNodes.map(rootNode => {
-  return new GameTree({root: rootNode})
+  return new GameTree({getId, root: rootNode})
 })
 ```
+
+Make sure the id generation function is shared between `@sabaki/sgf` and
+`@sabaki/immutable-gametree`.
 
 ## Contributors
 
@@ -93,12 +97,12 @@ A tree _node_ is represented by an object of the following form:
 
 ```js
 {
-    id: <Primitive>,
-    data: {
-        [property]: <Array<String>>
-    },
-    parentId: <Primitive> | null,
-    children: <Array<NodeObject>>
+  id: <Primitive>,
+  data: {
+    [property]: <Array<String>>
+  },
+  parentId: <Primitive> | null,
+  children: <Array<NodeObject>>
 }
 ```
 
@@ -117,12 +121,12 @@ A generator function that yields SGF tokens, objects of the following form:
 
 ```js
 {
-    type: <String>,
-    value: <String>,
-    row: <Integer>,
-    col: <Integer>,
-    pos: <Integer>,
-    progress: <Number>
+  type: <String>,
+  value: <String>,
+  row: <Integer>,
+  col: <Integer>,
+  pos: <Integer>,
+  progress: <Number>
 }
 ```
 
