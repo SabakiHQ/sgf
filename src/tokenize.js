@@ -53,7 +53,6 @@ exports.tokenizeBufferIter = function*(buffer, {encoding = null} = {}) {
   // Search for encoding
 
   let prelude = []
-  let testBuffers = []
 
   while (true) {
     let next = tokens.next()
@@ -72,20 +71,7 @@ exports.tokenizeBufferIter = function*(buffer, {encoding = null} = {}) {
     ) {
       encoding = unescapeString(value.slice(1, -1))
       break
-    } else if (
-      type === 'c_value_type' &&
-      lastToken != null &&
-      lastToken.type === 'prop_ident' &&
-      encodingDetectionProps.includes(lastToken.value)
-    ) {
-      testBuffers.push(iconv.encode(value.slice(1, -1), detectedEncoding))
-
-      if (testBuffers.reduce((sum, buf) => sum + buf.length, 0) > 100) break
     }
-  }
-
-  if (encoding == null && testBuffers.length > 0) {
-    encoding = jschardet.detectBuffers(testBuffers).encoding
   }
 
   if (
