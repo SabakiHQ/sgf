@@ -17,7 +17,7 @@ function getJSON(tree) {
 }
 
 t.test('should parse multiple nodes', t => {
-  t.deepEqual(
+  t.same(
     getJSON(sgf.parse('(;B[aa]SZ[19];AB[cc][dd:ee])')[0]),
     getJSON({
       data: {B: ['aa'], SZ: ['19']},
@@ -34,7 +34,7 @@ t.test('should parse multiple nodes', t => {
 })
 
 t.test('should not omit CA property', t => {
-  t.deepEqual(
+  t.same(
     getJSON(sgf.parse('(;B[aa]CA[UTF-8])', {encoding: 'ISO-8859-1'})[0]),
     getJSON({
       data: {B: ['aa'], CA: ['UTF-8']},
@@ -46,7 +46,7 @@ t.test('should not omit CA property', t => {
 })
 
 t.test('should parse variations', t => {
-  t.deepEqual(
+  t.same(
     getJSON(sgf.parse('(;B[hh](;W[ii])(;W[hi]C[h]))')[0]),
     getJSON({
       data: {B: ['hh']},
@@ -75,7 +75,7 @@ t.test('should emit onNodeCreated correctly', t => {
     }
   })
 
-  t.deepEqual(nodes, [
+  t.same(nodes, [
     {
       children: [],
       data: {B: ['hh']},
@@ -106,7 +106,7 @@ t.test('should emit onNodeCreated correctly', t => {
 })
 
 t.test('should convert lower case properties', t => {
-  t.deepEqual(
+  t.same(
     getJSON(
       sgf.parse('(;CoPyright[hello](;White[ii])(;White[hi]Comment[h]))')[0]
     ),
@@ -139,7 +139,7 @@ t.test('should be able to parse nodes outside a game', t => {
   let trees1 = sgf.parse(';B[hh];W[ii]')
   let trees2 = sgf.parse('(;B[hh];W[ii])')
 
-  t.deepEqual(trees1, trees2)
+  t.same(trees1, trees2)
   t.end()
 })
 
@@ -148,13 +148,13 @@ t.test('should be able to correctly parse a game that misses initial ;', t => {
   let trees2 = sgf.parse('(B[hh];W[ii])')
   let trees3 = sgf.parse('(;B[hh];W[ii])')
 
-  t.deepEqual(trees1, trees3)
-  t.deepEqual(trees2, trees3)
+  t.same(trees1, trees3)
+  t.same(trees2, trees3)
   t.end()
 })
 
 t.test('should ignore empty variations', t => {
-  t.deepEqual(
+  t.same(
     getJSON(sgf.parse('(;B[hh]()(;W[ii])()(;W[hi]C[h]))')[0]),
     getJSON({
       data: {B: ['hh']},
