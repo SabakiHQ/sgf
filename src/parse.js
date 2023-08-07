@@ -116,7 +116,8 @@ exports.parseTokens = function(
     getId = (id => () => id++)(0),
     dictionary = null,
     onProgress = () => {},
-    onNodeCreated = () => {}
+    onNodeCreated = () => {},
+    shouldAdjustFoxKomi = true
   } = {}
 ) {
   let node = _parseTokens(new Peekable(tokens), null, {
@@ -126,7 +127,33 @@ exports.parseTokens = function(
     onNodeCreated
   })
 
-  return node.id == null ? node.children : [node]
+  let rootNodes = node.id == null ? node.children : [node]
+
+  // Fox Go Server uses different Komi and in particular for even games will set it to 375.
+  // Here we're following KaTrain's method to fixup Komi
+  // https://github.com/sanderland/katrain/blob/485b55c42df4dd1c77abf21eefc23c9a17d6a512/katrain/core/sgf_parser.py#L422-L430
+  let correctedKomi = 0
+  let gameData = rootNodes[0].data
+  if (
+    shouldAdjustFoxKomi &&
+    'AP' in gameData &&
+    gameData['AP'].includes('foxwq') &&
+    'KM' in gameData
+  ) {
+    if ('HA' in gameData && parseInt(gameData['HA']) >= 1) {
+      correctedKomi = 0.5
+    } else if (
+      'RU' in gameData &&
+      ['chinese', 'cn'].includes(gameData['RU'][0].toLowerCase())
+    ) {
+      correctedKomi = 7.5
+    } else {
+      correctedKomi = 6.5
+    }
+
+    gameData['KM'] = correctedKomi.toString()
+  }
+  return rootNodes
 }
 
 exports.parse = function(contents, options = {}) {
