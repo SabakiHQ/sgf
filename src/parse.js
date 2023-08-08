@@ -116,7 +116,8 @@ exports.parseTokens = function(
     getId = (id => () => id++)(0),
     dictionary = null,
     onProgress = () => {},
-    onNodeCreated = () => {}
+    onNodeCreated = () => {},
+    shouldAdjustFoxKomi = true
   } = {}
 ) {
   let node = _parseTokens(new Peekable(tokens), null, {
@@ -126,7 +127,62 @@ exports.parseTokens = function(
     onNodeCreated
   })
 
-  return node.id == null ? node.children : [node]
+  let rootNodes = node.id == null ? node.children : [node]
+
+  // Fox Go Server uses different Komi in sgf. KaTrain fixed it up as below.
+  // https://github.com/sanderland/katrain/blob/485b55c42df4dd1c77abf21eefc23c9a17d6a512/katrain/core/sgf_parser.py#L422-L430
+
+  /*
+   * This is trickier than it seems.
+   *
+   * HA = Handicap
+   * AB = Add Black
+   * KM = Komi
+   *
+   * Fox isn't using HA and AB together which would be required to be in spec. Specifically HA says how many handicap stones
+   * you're adding and AB says where they are.
+   *
+   * It is using HA as a way to tweak KM, Komi and at other times using it with AB.
+   *
+   * For Chinese rules it looks like the pattern is:
+   * KM = 0, HA = 1 would be komi of 6.5 -- the game wasn't even but no handicap stones.
+   * KM = 375, HA = 0 would be komi of 7.5 -- the game was even game
+   * Beyond HA = 1, I think Komi is 0.5 and I have examples of it being used with AB.
+   *
+   * Unsure about komi in other rulesets, japanese, korean, agf, etc.
+   *
+   * There is some indication japaense may be 6.5 based on this table and a few sgfs in the same thread. https://github.com/sanderland/katrain/issues/177#issuecomment-683108708
+   * It appears to show up as 650 in the KM field. Because of that and many systems using 6.5 Komi, i'll go with that as the default "correct" value.
+   *
+   */
+  let correctedKomi = 0
+  let gameData = rootNodes[0].data
+  if (
+    shouldAdjustFoxKomi &&
+    'AP' in gameData &&
+    gameData['AP'].includes('foxwq') &&
+    'KM' in gameData
+  ) {
+    let rules = 'RU' in gameData ? gameData['RU'][0].toLowerCase() : 'Unknown'
+    let handicap = 'HA' in gameData ? parseInt(gameData['HA']) : -1
+    let hasHandicapStones = 'AB' in rootNodes[0].children[0].data // never seen a handicap game or example using white always, black.
+    let komi = 'KM' in gameData ? parseInt(gameData['KM']) : -1
+
+    correctedKomi = 6.5
+
+    if (rules.includes('chinese') && komi === 375) {
+      correctedKomi = 7.5
+    }
+
+    // For Chinese rules games fox uses KM:0,HA:1 to indicate 6.5 komi
+    // To avoid that, actually detect both HA and presence of handicap stones.
+    if (handicap >= 1 && hasHandicapStones) {
+      correctedKomi = 0.5
+    }
+
+    gameData['KM'] = [correctedKomi.toString()]
+  }
+  return rootNodes
 }
 
 exports.parse = function(contents, options = {}) {
