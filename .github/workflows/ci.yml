@@ -1,0 +1,22 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [22, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm ci
+      # tap's CLI doesn't run on modern Node, so run each suite directly with
+      # node. Run from tests/ so the test-data paths resolve.
+      - name: Test
+        working-directory: tests
+        run: |
+          for f in *.test.js; do echo "== $f =="; node "$f"; done

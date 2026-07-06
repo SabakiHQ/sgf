@@ -1,0 +1,16 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      dev-dependencies:
+        dependency-type: development
+    ignore:
+      # tap 14 -> 21 is a breaking migration (drops t.deepEqual/deepEquals/
+      # strictDeepEquals/equals, changes snapshots). Hold the major until the
+      # test suite is migrated; minor/patch bumps are still allowed.
+      - dependency-name: "tap"
+        update-types: ["version-update:semver-major"]

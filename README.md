@@ -1,4 +1,4 @@
-# @sabaki/sgf [![Build Status](https://travis-ci.org/SabakiHQ/sgf.svg?branch=master)](https://travis-ci.org/SabakiHQ/sgf)
+# @sabaki/sgf [![CI](https://github.com/SabakiHQ/sgf/actions/workflows/ci.yml/badge.svg)](https://github.com/SabakiHQ/sgf/actions/workflows/ci.yml)
 
 A library for parsing SGF files.
 
