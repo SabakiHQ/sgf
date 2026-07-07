@@ -1,0 +1,3 @@
+# Encoding-test fixtures are stored in their original (often non-UTF-8) bytes,
+# sometimes with CRLF; keep them exactly as-is (no line-ending normalization).
+tests/sgf/encoding/*.sgf binary
