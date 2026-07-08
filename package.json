@@ -4,7 +4,7 @@
   "description": "A library for parsing SGF files.",
   "main": "./src/main.js",
   "scripts": {
-    "test": "tap tests/*.test.js",
+    "test": "tap --allow-incomplete-coverage tests/*.test.js",
     "format": "prettier \"**/*.{js,md}\" --write",
     "format-watch": "onchange \"**/*.{js,md}\" -- prettier --write {{changed}}"
   },
@@ -35,7 +35,7 @@
     "jschardet": "^2.1.0",
     "onchange": "^6.1.0",
     "prettier": "1.19.1",
-    "tap": "^14.10.6"
+    "tap": "^21.7.4"
   },
   "optionalDependencies": {
     "iconv-lite": "0.4.x",

@@ -5,7 +5,7 @@ t.test('should track source position correctly', t => {
   let contents = '(;B[aa]SZ[19]\n;AB[cc]\n[dd:ee])'
   let len = contents.length - 1
 
-  t.deepEqual(tokenize(contents), [
+  t.same(tokenize(contents), [
     {
       type: 'parenthesis',
       value: '(',
@@ -89,7 +89,7 @@ t.test('should take escaping values into account', t => {
   let contents = '(;C[hello\\]world];C[hello\\\\];C[hello])'
   let len = contents.length - 1
 
-  t.deepEqual(tokenize(contents), [
+  t.same(tokenize(contents), [
     {
       type: 'parenthesis',
       value: '(',
@@ -169,7 +169,7 @@ t.test('should take escaping values into account', t => {
   contents = '(;C[\\];B[aa];W[bb])'
   len = contents.length - 1
 
-  t.deepEqual(tokenize(contents), [
+  t.same(tokenize(contents), [
     {
       type: 'parenthesis',
       value: '(',
@@ -229,7 +229,7 @@ t.test('should allow lower case properties', t => {
   let contents = '(;CoPyright[blah])'
   let len = contents.length - 1
 
-  t.deepEqual(tokenize(contents), [
+  t.same(tokenize(contents), [
     {
       type: 'parenthesis',
       value: '(',
@@ -272,7 +272,7 @@ t.test('should take new lines inside token values into account', t => {
   let contents = '(;C[bl\nah])'
   let len = contents.length - 1
 
-  t.deepEqual(tokenize(contents), [
+  t.same(tokenize(contents), [
     {
       type: 'parenthesis',
       value: '(',
@@ -308,7 +308,7 @@ t.test('should return invalid tokens', t => {
   let contents = '(;C[hi]%[invalid])'
   let len = contents.length - 1
 
-  t.deepEqual(tokenize(contents), [
+  t.same(tokenize(contents), [
     {
       type: 'parenthesis',
       value: '(',
