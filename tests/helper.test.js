@@ -3,7 +3,7 @@ const sgf = require('..')
 
 t.test('parseDates', t => {
   t.test('should parse comma-separated dates', t => {
-    t.deepEqual(sgf.parseDates('1996-12-27,1997-01-03'), [
+    t.same(sgf.parseDates('1996-12-27,1997-01-03'), [
       [1996, 12, 27],
       [1997, 1, 3]
     ])
@@ -11,27 +11,27 @@ t.test('parseDates', t => {
     t.end()
   })
   t.test('should be able to handle empty strings', t => {
-    t.deepEqual(sgf.parseDates(''), [])
+    t.same(sgf.parseDates(''), [])
 
     t.end()
   })
   t.test('should handle short-hand notation', t => {
-    t.deepEqual(sgf.parseDates('1996-05,06'), [
+    t.same(sgf.parseDates('1996-05,06'), [
       [1996, 5],
       [1996, 6]
     ])
-    t.deepEqual(sgf.parseDates('1996-05,06-01'), [
+    t.same(sgf.parseDates('1996-05,06-01'), [
       [1996, 5],
       [1996, 6, 1]
     ])
-    t.deepEqual(sgf.parseDates('1996-05,1997'), [[1996, 5], [1997]])
-    t.deepEqual(sgf.parseDates('1996-05-06,07,08'), [
+    t.same(sgf.parseDates('1996-05,1997'), [[1996, 5], [1997]])
+    t.same(sgf.parseDates('1996-05-06,07,08'), [
       [1996, 5, 6],
       [1996, 5, 7],
       [1996, 5, 8]
     ])
-    t.deepEqual(sgf.parseDates('1996,1997'), [[1996], [1997]])
-    t.deepEqual(sgf.parseDates('1996-12-27,28,1997-01-03,04'), [
+    t.same(sgf.parseDates('1996,1997'), [[1996], [1997]])
+    t.same(sgf.parseDates('1996-12-27,28,1997-01-03,04'), [
       [1996, 12, 27],
       [1996, 12, 28],
       [1997, 1, 3],
@@ -88,7 +88,7 @@ t.test('stringifyDates', t => {
     t.end()
   })
   t.test('should be inverse to parseDates', t => {
-    t.deepEqual(
+    t.same(
       sgf.parseDates(
         sgf.stringifyDates([
           [1996, 5],
@@ -100,7 +100,7 @@ t.test('stringifyDates', t => {
         [1996, 6]
       ]
     )
-    t.deepEqual(
+    t.same(
       sgf.parseDates(
         sgf.stringifyDates([
           [1996, 5, 6],
@@ -114,11 +114,11 @@ t.test('stringifyDates', t => {
         [1996, 5, 8]
       ]
     )
-    t.deepEqual(sgf.parseDates(sgf.stringifyDates([[1996], [1997]])), [
+    t.same(sgf.parseDates(sgf.stringifyDates([[1996], [1997]])), [
       [1996],
       [1997]
     ])
-    t.deepEqual(
+    t.same(
       sgf.parseDates(
         sgf.stringifyDates([
           [1996, 12, 27],
@@ -154,19 +154,19 @@ t.test('stringifyDates', t => {
 
 t.test('parseVertex', t => {
   t.test('should return [-1, -1] when passing string with length > 2', t => {
-    t.deepEqual(sgf.parseVertex(''), [-1, -1])
-    t.deepEqual(sgf.parseVertex('d'), [-1, -1])
-    t.deepEqual(sgf.parseVertex('blah'), [-1, -1])
+    t.same(sgf.parseVertex(''), [-1, -1])
+    t.same(sgf.parseVertex('d'), [-1, -1])
+    t.same(sgf.parseVertex('blah'), [-1, -1])
 
     t.end()
   })
   t.test('should work', t => {
-    t.deepEqual(sgf.parseVertex('bb'), [1, 1])
-    t.deepEqual(sgf.parseVertex('jj'), [9, 9])
-    t.deepEqual(sgf.parseVertex('jf'), [9, 5])
-    t.deepEqual(sgf.parseVertex('fa'), [5, 0])
-    t.deepEqual(sgf.parseVertex('fA'), [5, 26])
-    t.deepEqual(sgf.parseVertex('AB'), [26, 27])
+    t.same(sgf.parseVertex('bb'), [1, 1])
+    t.same(sgf.parseVertex('jj'), [9, 9])
+    t.same(sgf.parseVertex('jf'), [9, 5])
+    t.same(sgf.parseVertex('fa'), [5, 0])
+    t.same(sgf.parseVertex('fA'), [5, 26])
+    t.same(sgf.parseVertex('AB'), [26, 27])
 
     t.end()
   })
@@ -179,7 +179,7 @@ t.test('parseVertex', t => {
       [0, 0]
     ]
     tests.forEach(test =>
-      t.deepEqual(sgf.parseVertex(sgf.stringifyVertex(test)), test)
+      t.same(sgf.parseVertex(sgf.stringifyVertex(test)), test)
     )
 
     t.end()
@@ -227,27 +227,27 @@ t.test('stringifyVertex', t => {
 
 t.test('parseCompressedVertices', t => {
   t.test('should handle points normally', t => {
-    t.deepEqual(sgf.parseCompressedVertices('ce'), [sgf.parseVertex('ce')])
-    t.deepEqual(sgf.parseCompressedVertices('aa'), [sgf.parseVertex('aa')])
-    t.deepEqual(sgf.parseCompressedVertices('Az'), [sgf.parseVertex('Az')])
+    t.same(sgf.parseCompressedVertices('ce'), [sgf.parseVertex('ce')])
+    t.same(sgf.parseCompressedVertices('aa'), [sgf.parseVertex('aa')])
+    t.same(sgf.parseCompressedVertices('Az'), [sgf.parseVertex('Az')])
 
     t.end()
   })
   t.test('should handle one point compressions', t => {
-    t.deepEqual(sgf.parseCompressedVertices('ce:ce'), [sgf.parseVertex('ce')])
-    t.deepEqual(sgf.parseCompressedVertices('aa:aa'), [sgf.parseVertex('aa')])
-    t.deepEqual(sgf.parseCompressedVertices('Az:Az'), [sgf.parseVertex('Az')])
+    t.same(sgf.parseCompressedVertices('ce:ce'), [sgf.parseVertex('ce')])
+    t.same(sgf.parseCompressedVertices('aa:aa'), [sgf.parseVertex('aa')])
+    t.same(sgf.parseCompressedVertices('Az:Az'), [sgf.parseVertex('Az')])
 
     t.end()
   })
   t.test('should handle compressions', t => {
-    t.deepEqual(sgf.parseCompressedVertices('aa:bb'), [
+    t.same(sgf.parseCompressedVertices('aa:bb'), [
       [0, 0],
       [0, 1],
       [1, 0],
       [1, 1]
     ])
-    t.deepEqual(sgf.parseCompressedVertices('bb:aa'), [
+    t.same(sgf.parseCompressedVertices('bb:aa'), [
       [0, 0],
       [0, 1],
       [1, 0],
