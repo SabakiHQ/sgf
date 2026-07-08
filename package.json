@@ -31,14 +31,14 @@
     "doken": "^1.0.0"
   },
   "devDependencies": {
-    "iconv-lite": "^0.4.24",
+    "iconv-lite": "^0.7.3",
     "jschardet": "^2.1.0",
     "onchange": "^6.1.0",
     "prettier": "1.19.1",
     "tap": "^21.7.4"
   },
   "optionalDependencies": {
-    "iconv-lite": "0.4.x",
+    "iconv-lite": "0.7.x",
     "jschardet": ">=1.0 <3"
   },
   "prettier": {
