@@ -166,6 +166,7 @@ except this function will return an array.
   - `dictionary` `<Object>` _(optional)_
   - `onProgress` `<Function>` _(optional)_
   - `onNodeCreated` `<Function>` _(optional)_
+  - `shouldAdjustFoxKomi` `<Boolean>` _(optional)_
 
 Returns an array of [node objects](#node-object) which represent the root nodes
 of each game tree.
@@ -185,6 +186,8 @@ nodes with their ids as keys.
 node. It will be called with an object with the following keys:
 
 - `node` [`<NodeObject>`](#node-object)
+
+`shouldAdjustFoxKomi` `<Boolean>` - default value is `true`.
 
 #### `sgf.parse(contents[, options])`
 
