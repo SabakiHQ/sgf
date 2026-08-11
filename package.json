@@ -32,14 +32,14 @@
   },
   "devDependencies": {
     "iconv-lite": "^0.7.3",
-    "jschardet": "^2.1.0",
+    "jschardet": "^3.1.4",
     "onchange": "^7.1.0",
     "prettier": "3.9.6",
     "tap": "^21.7.4"
   },
   "optionalDependencies": {
     "iconv-lite": "0.7.x",
-    "jschardet": ">=1.0 <3"
+    "jschardet": ">=1.0 <4"
   },
   "prettier": {
     "semi": false,
