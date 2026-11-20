@@ -11,7 +11,7 @@ exports.unescapeString = function(input) {
   let result = []
   let inBackslash = false
 
-  input = input.replace(/\r/g, '')
+  input = input.replace(/\r\n|\n\r|\r/g, '\n')
 
   for (let i = 0; i < input.length; i++) {
     if (!inBackslash) {
