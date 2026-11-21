@@ -126,6 +126,8 @@ exports.parseTokens = function(
     onNodeCreated
   })
 
+  if (node == null) return []
+
   return node.id == null ? node.children : [node]
 }
 
