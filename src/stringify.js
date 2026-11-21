@@ -17,7 +17,15 @@ exports.stringify = function(
     for (let id in node.data) {
       if (id.toUpperCase() !== id) continue
 
-      output.push(id, '[', node.data[id].map(escapeString).join(']['), ']')
+      let values = node.data[id].map(escapeString)
+
+      if (['AR', 'FG', 'LB', 'LN'].includes(id)) {
+        values = values.map(x =>
+          x.replace(/:([\s\S]*)/, (_, text) => ':' + text.replace(/:/g, '\\:'))
+        )
+      }
+
+      output.push(id, '[', values.join(']['), ']')
     }
 
     output.push(linebreak)
