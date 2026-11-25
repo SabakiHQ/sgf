@@ -88,6 +88,26 @@ t.test('stringifyDates', t => {
     t.end()
   })
   t.test('should be inverse to parseDates', t => {
+    let candidates = [
+      [1996],
+      [1997],
+      [1996, 5],
+      [1996, 6],
+      [1996, 5, 6],
+      [1996, 5, 7],
+      [1996, 6, 6],
+      [1997, 5, 6]
+    ]
+
+    let lists = candidates.flatMap(x =>
+      candidates.flatMap(y => candidates.map(z => [x, y, z]))
+    )
+
+    t.same(
+      lists.map(dates => sgf.parseDates(sgf.stringifyDates(dates))),
+      lists
+    )
+
     t.same(
       sgf.parseDates(
         sgf.stringifyDates([
