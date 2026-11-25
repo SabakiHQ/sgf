@@ -69,9 +69,13 @@ exports.stringifyDates = function(dates) {
     let prev = dates[i - 1]
     let k = 0
 
-    for (let j = 0; j < date.length; j++) {
-      if (date[j] === prev[j] && k === j) k++
-      else break
+    // Leave out the parts that `parseDates` takes over from the previous date.
+    // A single number is a day after a full date and a month otherwise.
+
+    if (date[0] === prev[0]) {
+      if (date.length === 2 && prev.length !== 3) k = 1
+      else if (date.length === 3)
+        k = prev.length === 3 && date[1] === prev[1] ? 2 : 1
     }
 
     datesCopy.push(date.slice(k))
